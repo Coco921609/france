@@ -6,27 +6,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'questions_data.dart' as fr;
 import 'questions anglais.dart' as en;
 import 'questions arabe.dart' as ar;
-import 'questions_espagnol.dart' as es;
-import 'questions-italien.dart' as it;
-import 'questions-pt.dart' as pt;
-import 'questions-de.dart' as de;
 
 class JeuPage extends StatefulWidget {
   final bool isEnglish;
   final bool isArabic;
   final bool isSpanish;
-  final bool isGerman;
-  final bool isItalian;
-  final bool isPortuguese;
 
   const JeuPage({
     super.key,
     this.isEnglish = false,
     this.isArabic = false,
     this.isSpanish = false,
-    this.isGerman = false,
-    this.isItalian = false,
-    this.isPortuguese = false,
   });
 
   @override
@@ -42,18 +32,14 @@ class _JeuPageState extends State<JeuPage> {
   @override
   void initState() {
     super.initState();
+    // Sélection de la bonne liste de questions selon les paramètres reçus
     if (widget.isArabic) {
       questions = ar.questions;
-    } else if (widget.isSpanish) {
-      questions = es.questions;
-    } else if (widget.isGerman) {
-      questions = de.questions;
-    } else if (widget.isItalian) {
-      questions = it.questions;
-    } else if (widget.isPortuguese) {
-      questions = pt.questions;
+    } else if (widget.isEnglish) {
+      questions = en.questions;
     } else {
-      questions = widget.isEnglish ? en.questions : fr.questions;
+      // Par défaut (Français, Espagnol si non traduit séparément)
+      questions = fr.questions;
     }
   }
 
@@ -105,11 +91,8 @@ class _JeuPageState extends State<JeuPage> {
     Color couleurCard = _getCouleurDifficulte(q.difficulte);
 
     String textExplication = widget.isArabic ? 'الشرح'
-        : (widget.isGerman ? 'Erklärung'
-        : (widget.isItalian ? 'Spiegazione'
         : (widget.isSpanish ? 'Explicación'
-        : (widget.isPortuguese ? 'Explicação'
-        : (widget.isEnglish ? 'Explanation' : 'Explication')))));
+        : (widget.isEnglish ? 'Explanation' : 'Explication'));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 25),
@@ -174,31 +157,19 @@ class _JeuPageState extends State<JeuPage> {
   @override
   Widget build(BuildContext context) {
     String appTitle = widget.isArabic ? "فرنسا السرية - مسابقة"
-        : (widget.isGerman ? "Geheimnisvolles Frankreich - Quiz"
-        : (widget.isItalian ? "Francia Segreta - Quiz"
         : (widget.isSpanish ? "Francia Secreta - Quiz"
-        : (widget.isPortuguese ? "França Secreta - Quiz"
-        : (widget.isEnglish ? "Secret France - Quiz" : "France Secrète - Quiz")))));
+        : (widget.isEnglish ? "Secret France - Quiz" : "France Secrète - Quiz"));
 
     String btnValidate = widget.isArabic ? "تحقق"
-        : (widget.isGerman ? "VALIDIEREN"
-        : (widget.isItalian ? "VERIFICA"
         : (widget.isSpanish ? "COMPROBAR"
-        : (widget.isPortuguese ? "VALIDAR"
-        : (widget.isEnglish ? "VALIDATE" : "VALIDER")))));
+        : (widget.isEnglish ? "VALIDATE" : "VALIDER"));
 
     String btnReplay = widget.isArabic ? "إعادة"
-        : (widget.isGerman ? "NEU STARTEN"
-        : (widget.isItalian ? "RIGIOCA"
         : (widget.isSpanish ? "VOLVER A JUGAR"
-        : (widget.isPortuguese ? "JOGAR NOVAMENTE"
-        : (widget.isEnglish ? "REPLAY" : "REJOUER")))));
+        : (widget.isEnglish ? "REPLAY" : "REJOUER"));
 
     String labelScore = widget.isArabic ? "النتيجة"
-        : (widget.isGerman ? "Ergebnis"
-        : (widget.isItalian ? "Punteggio"
-        : (widget.isSpanish ? "Puntuación"
-        : (widget.isPortuguese ? "Pontuação" : "Score"))));
+        : (widget.isSpanish ? "Puntuación" : "Score");
 
     return Directionality(
       textDirection: widget.isArabic ? TextDirection.rtl : TextDirection.ltr,
@@ -206,7 +177,6 @@ class _JeuPageState extends State<JeuPage> {
         backgroundColor: const Color(0xFF0B0C0E),
         body: Stack(
           children: [
-            // Utilisation de PositionedDirectional pour s'adapter automatiquement au sens RTL/LTR
             PositionedDirectional(top: -50, start: -50, child: _buildBackgroundGlow(Colors.blue.withOpacity(0.15))),
             PositionedDirectional(bottom: 100, end: -50, child: _buildBackgroundGlow(Colors.purple.withOpacity(0.1))),
 

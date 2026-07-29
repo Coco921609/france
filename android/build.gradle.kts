@@ -1,4 +1,4 @@
-// Fichier : android/build.gradle.kts
+import java.io.File
 
 buildscript {
     repositories {
@@ -6,7 +6,6 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // C'est ici que le plugin Firebase doit être déclaré
         classpath("com.google.gms:google-services:4.4.2")
     }
 }
@@ -33,6 +32,12 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-tasks.register<Delete>("clean") {
-    delete(rootProject.layout.buildDirectory)
+// Configuration universelle pour forcer Java 17 et retirer les avertissements
+// Configuration universelle pour forcer Java 17 et retirer les avertissements et notes
+subprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+        options.compilerArgs.addAll(listOf("-Xlint:-options", "-Xlint:-deprecation"))
+    }
 }

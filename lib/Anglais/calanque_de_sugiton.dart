@@ -15,31 +15,32 @@ class _CalanqueDeSugitonPageState extends State<CalanqueDeSugitonPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/111.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. PANNEAU DE CONTENU
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/111.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,11 +148,13 @@ class _CalanqueDeSugitonPageState extends State<CalanqueDeSugitonPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  // --- MÉTHODES HELPERS ---
 
   Widget _buildSectionTitle(String title, Color color) {
     return Text(title, style: GoogleFonts.cinzel(color: color, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2));

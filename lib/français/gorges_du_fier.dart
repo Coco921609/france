@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class GorgesDuFierPage extends StatefulWidget {
   const GorgesDuFierPage({super.key});
@@ -10,40 +9,38 @@ class GorgesDuFierPage extends StatefulWidget {
 }
 
 class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
-  bool _isFavorite = false;
-
   @override
   Widget build(BuildContext context) {
     const Color bleuEau = Color(0xFF2E5A88);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/gorges-du-fier-annecy-4-768x960.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Désormais intégrée dans le défilement)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/gorges-du-fier-annecy-4-768x960.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU DÉFILABLE (Remonte légèrement sur l'image)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,9 +55,7 @@ class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
                     ),
                     const SizedBox(height: 15),
 
-                    // ANALOGIE CORRIGÉE (Anti-overflow)
-                    _buildTranslationLine(
-                        "Annecy", "Un air de Malaga (Caminito del Rey)", bleuEau),
+                    _buildTranslationLine("Annecy", "Un air de Malaga (Caminito del Rey)", bleuEau),
 
                     const SizedBox(height: 25),
 
@@ -76,8 +71,7 @@ class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
                     const SizedBox(height: 15),
                     Text(
                       "Une expérience vertigineuse rappelant les célèbres gorges de Malaga. Marchez au-dessus du Fier sur des passerelles suspendues et admirez le travail de l'érosion sur la roche calcaire.",
-                      style: GoogleFonts.montserrat(
-                          color: Colors.white, fontSize: 15, height: 1.6),
+                      style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15, height: 1.6),
                     ),
                     const SizedBox(height: 35),
 
@@ -109,18 +103,13 @@ class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         children: [
-                          _buildGalleryImage(
-                              'assets/images/gorges-du-fier-annecy-14-768x960.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/gorges-du-fier-annecy-2-768x960.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/gorges-du-fier-annecy-4-768x960.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/gorges-du-fier-annecy-8-768x960.jpg'),
+                          _buildGalleryImage('assets/images/gorges-du-fier-annecy-14-768x960.jpg'),
+                          _buildGalleryImage('assets/images/gorges-du-fier-annecy-2-768x960.jpg'),
+                          _buildGalleryImage('assets/images/gorges-du-fier-annecy-4-768x960.jpg'),
+                          _buildGalleryImage('assets/images/gorges-du-fier-annecy-8-768x960.jpg'),
                           _buildGalleryImage('assets/images/gorges-du-fier-annecy-12.jpg'),
                           _buildGalleryImage('assets/images/gorges-du-fier-annecy-20.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/gorges-du-fier-annecy-17-768x960.jpg'),
+                          _buildGalleryImage('assets/images/gorges-du-fier-annecy-17-768x960.jpg'),
                         ],
                       ),
                     ),
@@ -137,14 +126,10 @@ class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.camera_alt,
-                              "Appareil photo fortement conseillé", bleuEau),
-                          _buildTechRow(Icons.euro_symbol,
-                              "Prix 6 € : attention peut changer", bleuEau),
-                          _buildTechRow(Icons.warning_amber_rounded,
-                              "Passerelles étroites (sens unique)", bleuEau),
-                          _buildTechRow(Icons.explore,
-                              "Rappel : ressemble au Caminito del Rey et canyons du Colorado", bleuEau),
+                          _buildTechRow(Icons.camera_alt, "Appareil photo fortement conseillé", bleuEau),
+                          _buildTechRow(Icons.euro_symbol, "Prix 6 € : attention peut changer", bleuEau),
+                          _buildTechRow(Icons.warning_amber_rounded, "Passerelles étroites (sens unique)", bleuEau),
+                          _buildTechRow(Icons.explore, "Rappel : ressemble au Caminito del Rey et canyons du Colorado", bleuEau),
                         ],
                       ),
                     ),
@@ -153,8 +138,8 @@ class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -165,48 +150,31 @@ class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(ville,
-            style: GoogleFonts.montserrat(
-                color: color, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(ville, style: GoogleFonts.montserrat(color: color, fontWeight: FontWeight.bold, fontSize: 16)),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8),
           child: Icon(Icons.arrow_forward, color: Colors.white24, size: 16),
         ),
-        Text(
-          analogie,
-          style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 16),
-          softWrap: true,
-        ),
+        Text(analogie, style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 16), softWrap: true),
       ],
     );
   }
-
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap,
-      {Color color = Colors.white}) =>
-      CircleAvatar(
-        backgroundColor: Colors.black45,
-        child:
-        IconButton(icon: Icon(icon, color: color, size: 18), onPressed: tap),
-      );
 
   Widget _buildTable(List<List<String>> data, Color hColor) {
     return Table(
       border: TableBorder.all(color: Colors.white10, width: 1),
       children: data.asMap().entries.map((entry) {
-        int idx = entry.key;
+        bool isHeader = entry.key == 0;
         return TableRow(
-          children: entry.value
-              .map((cell) => Padding(
+          children: entry.value.map((cell) => Padding(
             padding: const EdgeInsets.all(12),
             child: Text(cell,
                 style: GoogleFonts.montserrat(
-                  color: idx == 0 ? hColor : Colors.white70,
+                  color: isHeader ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight:
-                  idx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
                 )),
-          ))
-              .toList(),
+          )).toList(),
         );
       }).toList(),
     );
@@ -239,10 +207,7 @@ class _GorgesDuFierPageState extends State<GorgesDuFierPage> {
         children: [
           Icon(icon, color: color.withOpacity(0.5), size: 20),
           const SizedBox(width: 15),
-          Expanded(
-              child: Text(label,
-                  style: GoogleFonts.montserrat(
-                      color: Colors.white, fontSize: 13))),
+          Expanded(child: Text(label, style: GoogleFonts.montserrat(color: Colors.white, fontSize: 13))),
         ],
       ),
     );

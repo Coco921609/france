@@ -13,29 +13,32 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/16.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/16.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,6 +119,7 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
                       height: 220,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
                         children: [
                           _buildGalleryImage('assets/images/14.jpg'),
                           _buildGalleryImage('assets/images/15.jpg'),
@@ -146,8 +150,8 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

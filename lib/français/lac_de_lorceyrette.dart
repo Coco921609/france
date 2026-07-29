@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class LacOrceyrettePage extends StatefulWidget {
   const LacOrceyrettePage({super.key});
@@ -10,40 +9,36 @@ class LacOrceyrettePage extends StatefulWidget {
 }
 
 class _LacOrceyrettePageState extends State<LacOrceyrettePage> {
-  bool _isFavorite = false;
-
   @override
   Widget build(BuildContext context) {
     const Color orangeAutomne = Color(0xFFE2725B);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND FIXE
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/lac_or10.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. PANNEAU DE CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      // Structure en scroll global pour un comportement "site web"
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au flux)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/lac_or10.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour conserver l'effet visuel)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,21 +83,10 @@ class _LacOrceyrettePageState extends State<LacOrceyrettePage> {
                         1: FlexColumnWidth(2)
                       },
                       children: [
-                        _buildTableRow(['Statut', 'Saisons & ambiance'],
-                            orangeAutomne,
-                            isHeader: true),
-                        _buildTableRow([
-                          '✅ Top',
-                          'Automne (Couleurs des arbres magiques)'
-                        ], orangeAutomne),
-                        _buildTableRow([
-                          '🌤️ Été',
-                          'Parfait pour la fraîcheur et l\'eau pure'
-                        ], orangeAutomne),
-                        _buildTableRow([
-                          '❄️ Rare',
-                          'Hiver (Lac gelé, ambiance grand nord)'
-                        ], orangeAutomne),
+                        _buildTableRow(['Statut', 'Saisons & ambiance'], orangeAutomne, isHeader: true),
+                        _buildTableRow(['✅ Top', 'Automne (Couleurs des arbres magiques)'], orangeAutomne),
+                        _buildTableRow(['🌤️ Été', 'Parfait pour la fraîcheur et l\'eau pure'], orangeAutomne),
+                        _buildTableRow(['❄️ Rare', 'Hiver (Lac gelé, ambiance grand nord)'], orangeAutomne),
                       ],
                     ),
 
@@ -118,17 +102,10 @@ class _LacOrceyrettePageState extends State<LacOrceyrettePage> {
                         1: FlexColumnWidth(2)
                       },
                       children: [
-                        _buildTableRow(['Moment', 'Conseils'], orangeAutomne,
-                            isHeader: true),
-                        _buildTableRow(
-                            ['✨ Matin', 'Eau miroir pour des reflets parfaits'],
-                            orangeAutomne),
-                        _buildTableRow(
-                            ['☀️ Midi', 'Lumière zénithale sur les mélèzes'],
-                            orangeAutomne),
-                        _buildTableRow(
-                            ['🌅 Soir', 'Coucher de soleil sur les sommets'],
-                            orangeAutomne),
+                        _buildTableRow(['Moment', 'Conseils'], orangeAutomne, isHeader: true),
+                        _buildTableRow(['✨ Matin', 'Eau miroir pour des reflets parfaits'], orangeAutomne),
+                        _buildTableRow(['☀️ Midi', 'Lumière zénithale sur les mélèzes'], orangeAutomne),
+                        _buildTableRow(['🌅 Soir', 'Coucher de soleil sur les sommets'], orangeAutomne),
                       ],
                     ),
 
@@ -144,12 +121,9 @@ class _LacOrceyrettePageState extends State<LacOrceyrettePage> {
                         children: [
                           _buildGalleryImage('assets/images/img_8810.jpg'),
                           _buildGalleryImage('assets/images/lac_or10.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/DES_0502-1-1920x1080.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/lac-de-lorceyrette-5-scaled.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/Orceyrette-en-hiver-©Thibaut-Poinas-scaled-1.jpg'),
+                          _buildGalleryImage('assets/images/DES_0502-1-1920x1080.jpg'),
+                          _buildGalleryImage('assets/images/lac-de-lorceyrette-5-scaled.jpg'),
+                          _buildGalleryImage('assets/images/Orceyrette-en-hiver-©Thibaut-Poinas-scaled-1.jpg'),
                         ],
                       ),
                     ),
@@ -166,16 +140,11 @@ class _LacOrceyrettePageState extends State<LacOrceyrettePage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.wb_sunny_outlined,
-                              "Venir au coucher du soleil pour les couleurs", orangeAutomne),
-                          _buildTechRow(Icons.directions_car,
-                              "Accessible directement en voiture", orangeAutomne),
-                          _buildTechRow(Icons.terrain,
-                              "Randonnée possible pour les plus motivés", orangeAutomne),
-                          _buildTechRow(Icons.camera_alt_outlined,
-                              "Miroir d'eau parfait pour la photo", orangeAutomne),
-                          _buildTechRow(Icons.ac_unit,
-                              "Route fermée dès les premières grosses neiges", orangeAutomne),
+                          _buildTechRow(Icons.wb_sunny_outlined, "Venir au coucher du soleil pour les couleurs", orangeAutomne),
+                          _buildTechRow(Icons.directions_car, "Accessible directement en voiture", orangeAutomne),
+                          _buildTechRow(Icons.terrain, "Randonnée possible pour les plus motivés", orangeAutomne),
+                          _buildTechRow(Icons.camera_alt_outlined, "Miroir d'eau parfait pour la photo", orangeAutomne),
+                          _buildTechRow(Icons.ac_unit, "Route fermée dès les premières grosses neiges", orangeAutomne),
                         ],
                       ),
                     ),
@@ -184,22 +153,15 @@ class _LacOrceyrettePageState extends State<LacOrceyrettePage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // --- MÉTHODES DE STYLE ---
 
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap) => CircleAvatar(
-    backgroundColor: Colors.black45,
-    child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 18), onPressed: tap),
-  );
-
-  TableRow _buildTableRow(List<String> cells, Color color,
-      {bool isHeader = false}) {
+  TableRow _buildTableRow(List<String> cells, Color color, {bool isHeader = false}) {
     final style = GoogleFonts.montserrat(
       color: isHeader ? color : Colors.white70,
       fontSize: 12,
@@ -211,8 +173,7 @@ class _LacOrceyrettePageState extends State<LacOrceyrettePage> {
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            child: Text(cell,
-                style: style, textAlign: TextAlign.left, softWrap: true),
+            child: Text(cell, style: style, textAlign: TextAlign.left, softWrap: true),
           ),
         );
       }).toList(),

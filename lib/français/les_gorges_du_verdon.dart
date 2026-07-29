@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class GorgesDuVerdonPage extends StatefulWidget {
   const GorgesDuVerdonPage({super.key});
@@ -17,32 +16,32 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/VERDON.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/VERDON.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +57,7 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
                     const SizedBox(height: 15),
 
                     // ANALOGIE & LIEU
-                    _buildTranslationLine(
-                        "Provence", "Un air de Grand Canyon (USA)", bleuVerdon),
+                    _buildTranslationLine("Provence", "Un air de Grand Canyon (USA)", bleuVerdon),
 
                     const SizedBox(height: 25),
 
@@ -84,26 +82,10 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
                     const SizedBox(height: 15),
                     _buildTable([
                       ['Saison', 'Ambiance', 'Conseil'],
-                      [
-                        '🌸 Printemps',
-                        'Eau vive',
-                        'Idéal pour le rafting et les fleurs'
-                      ],
-                      [
-                        '☀️ Été',
-                        'Turquoise',
-                        'Parfait pour le pédalo (très fréquenté)'
-                      ],
-                      [
-                        '🍂 Automne',
-                        'Calme',
-                        'Lumière magnifique sur les falaises'
-                      ],
-                      [
-                        '❄️ Hiver',
-                        'Mystique',
-                        'Route des Crêtes parfois enneigée'
-                      ],
+                      ['🌸 Printemps', 'Eau vive', 'Idéal pour le rafting et les fleurs'],
+                      ['☀️ Été', 'Turquoise', 'Parfait pour le pédalo (très fréquenté)'],
+                      ['🍂 Automne', 'Calme', 'Lumière magnifique sur les falaises'],
+                      ['❄️ Hiver', 'Mystique', 'Route des Crêtes parfois enneigée'],
                     ], bleuVerdon),
 
                     const SizedBox(height: 35),
@@ -113,10 +95,7 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
                     _buildTable([
                       ['Type', 'Recommandation'],
                       ['🛶 Eau', 'Location de canoë au Pont du Galetas'],
-                      [
-                        '🥾 Rando',
-                        'Sentier Blanc-Martel (sportif et mythique)'
-                      ],
+                      ['🥾 Rando', 'Sentier Blanc-Martel (sportif et mythique)'],
                       ['🚗 Vue', 'La Route des Crêtes pour les belvédères'],
                     ], bleuVerdon),
 
@@ -130,12 +109,9 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         children: [
-                          _buildGalleryImage(
-                              'assets/images/Visiter-les-Gorges-du-Verdon.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/Gorges-du-VerdonProvence-in-France-Europe.-755x504.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/randonnee_basses_gorges_verdon_2_2a20e72145.jpg'),
+                          _buildGalleryImage('assets/images/Visiter-les-Gorges-du-Verdon.jpg'),
+                          _buildGalleryImage('assets/images/Gorges-du-VerdonProvence-in-France-Europe.-755x504.jpg'),
+                          _buildGalleryImage('assets/images/randonnee_basses_gorges_verdon_2_2a20e72145.jpg'),
                         ],
                       ),
                     ),
@@ -152,14 +128,10 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.directions_car,
-                              "Routes très sinueuses et étroites", bleuVerdon),
-                          _buildTechRow(Icons.location_on,
-                              "Incontournable : Moustiers-Sainte-Marie", bleuVerdon),
-                          _buildTechRow(Icons.water_drop,
-                              "Température de l'eau assez fraîche", bleuVerdon),
-                          _buildTechRow(Icons.camera_alt,
-                              "Vautours fauves visibles depuis les sommets", bleuVerdon),
+                          _buildTechRow(Icons.directions_car, "Routes très sinueuses et étroites", bleuVerdon),
+                          _buildTechRow(Icons.location_on, "Incontournable : Moustiers-Sainte-Marie", bleuVerdon),
+                          _buildTechRow(Icons.water_drop, "Température de l'eau assez fraîche", bleuVerdon),
+                          _buildTechRow(Icons.camera_alt, "Vautours fauves visibles depuis les sommets", bleuVerdon),
                         ],
                       ),
                     ),
@@ -168,19 +140,13 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // --- HELPERS DESIGN ---
-
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap) => CircleAvatar(
-    backgroundColor: Colors.black45,
-    child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 18), onPressed: tap),
-  );
 
   Widget _buildTranslationLine(String ville, String analogie, Color color) {
     return Wrap(
@@ -213,8 +179,7 @@ class _GorgesDuVerdonPageState extends State<GorgesDuVerdonPage> {
                 style: GoogleFonts.montserrat(
                   color: idx == 0 ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight:
-                  idx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
                 ),
                 softWrap: true),
           ))

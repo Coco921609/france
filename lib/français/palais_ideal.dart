@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class PalaisIdealPage extends StatefulWidget {
   const PalaisIdealPage({super.key});
@@ -17,32 +16,32 @@ class _PalaisIdealPageState extends State<PalaisIdealPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/Palais-Ideal-du-Facteur-Cheval-1.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/Palais-Ideal-du-Facteur-Cheval-1.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +57,7 @@ class _PalaisIdealPageState extends State<PalaisIdealPage> {
                     const SizedBox(height: 15),
 
                     // ANALOGIE & LIEU
-                    _buildTranslationLine(
-                        "Hauterives", "Temples d'Angkor (Cambodge)", pierreChaude),
+                    _buildTranslationLine("Hauterives", "Temples d'Angkor (Cambodge)", pierreChaude),
 
                     const SizedBox(height: 25),
 
@@ -174,14 +172,10 @@ class _PalaisIdealPageState extends State<PalaisIdealPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.camera_enhance_outlined,
-                              "Appareil photo indispensable", pierreChaude),
-                          _buildTechRow(Icons.map_outlined,
-                              "Situé à Hauterives (Drôme)", pierreChaude),
-                          _buildTechRow(Icons.language,
-                              "Réservation en ligne conseillée", pierreChaude),
-                          _buildTechRow(Icons.auto_awesome,
-                              "Classé monument historique", pierreChaude),
+                          _buildTechRow(Icons.camera_enhance_outlined, "Appareil photo indispensable", pierreChaude),
+                          _buildTechRow(Icons.map_outlined, "Situé à Hauterives (Drôme)", pierreChaude),
+                          _buildTechRow(Icons.language, "Réservation en ligne conseillée", pierreChaude),
+                          _buildTechRow(Icons.auto_awesome, "Classé monument historique", pierreChaude),
                         ],
                       ),
                     ),
@@ -190,8 +184,8 @@ class _PalaisIdealPageState extends State<PalaisIdealPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -229,8 +223,7 @@ class _PalaisIdealPageState extends State<PalaisIdealPage> {
                 style: GoogleFonts.montserrat(
                   color: idx == 0 ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight:
-                  idx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
                 ),
                 softWrap: true),
           ))

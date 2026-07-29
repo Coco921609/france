@@ -11,7 +11,6 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
-    // Le plugin est maintenant trouvé car déclaré dans la racine
     id("com.google.gms.google-services")
 }
 
@@ -33,8 +32,8 @@ android {
         applicationId = "com.france_secrete.france_secrete"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 32
-        versionName = "3.3.6"
+        versionCode = 48
+        versionName = "10.0.0"
     }
 
     signingConfigs {

@@ -11,53 +11,75 @@ class MaraisSalantsAiguesMortesPage extends StatefulWidget {
 class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMortesPage> {
   @override
   Widget build(BuildContext context) {
+    const Color orJaune = Color(0xFFF1C40F);
+
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/16.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/16.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text('Marais Salants 🧂',
-                          style: GoogleFonts.cinzel(color: const Color(0xFFF1C40F), fontSize: 28, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        'Marais Salants 🧂',
+                        style: GoogleFonts.cinzel(
+                          color: orJaune,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 10),
-                    Text("✨ Un air de Bolivie (Salar de Uyuni) dans le Gard",
-                        style: GoogleFonts.montserrat(color: const Color(0xFFF1C40F).withOpacity(0.7), fontSize: 16, fontWeight: FontWeight.w600, fontStyle: FontStyle.italic)),
+                    Text(
+                      "✨ Un air de Bolivie (Salar de Uyuni) dans le Gard",
+                      style: GoogleFonts.montserrat(
+                        color: orJaune.withOpacity(0.7),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                     const SizedBox(height: 25),
 
-                    Text("Les salins d'Aigues-Mortes ont une histoire riche remontant à l'Antiquité. Déjà exploités par les Romains, ils ont façonné le paysage camarguais. Aujourd'hui, ces marais offrent un paysage irréel avec leurs eaux roses éclatantes, un spectacle naturel saisissant.",
-                        style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15, height: 1.6)),
+                    Text(
+                      "Les salins d'Aigues-Mortes ont une histoire riche remontant à l'Antiquité. Déjà exploités par les Romains, ils ont façonné le paysage camarguais. Aujourd'hui, ces marais offrent un paysage irréel avec leurs eaux roses éclatantes, un spectacle naturel saisissant.",
+                      style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15, height: 1.6),
+                    ),
                     const SizedBox(height: 35),
 
                     _buildSectionTitle('Meilleures périodes'),
                     const SizedBox(height: 15),
-                    Text("La meilleure période est entre juin et juillet. Je vous conseille vivement d’y aller mi-juin afin d’être sûr de les observer dans les meilleures conditions.",
-                        style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13, height: 1.5)),
+                    Text(
+                      "La meilleure période est entre juin et juillet. Je vous conseille vivement d’y aller mi-juin afin d’être sûr de les observer dans les meilleures conditions.",
+                      style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13, height: 1.5),
+                    ),
 
                     const SizedBox(height: 35),
                     _buildSectionTitle('Horaires d\'ouverture'),
@@ -94,8 +116,10 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
                       ['Forfait Famille', '32,00 €'],
                     ]),
                     const SizedBox(height: 10),
-                    Text("À pied avec votre rythme pour profiler endroits et paysages :\n- Parcours point de vue Remparts (environ 4 kms) et/ou parcours point de vue Camelle (environ 4 kms)\n- Ou parcours 12 kms",
-                        style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13, height: 1.5)),
+                    Text(
+                      "À pied avec votre rythme pour profiler endroits et paysages :\n- Parcours point de vue Remparts (environ 4 kms) et/ou parcours point de vue Camelle (environ 4 kms)\n- Ou parcours 12 kms",
+                      style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13, height: 1.5),
+                    ),
 
                     const SizedBox(height: 35),
                     _buildSectionTitle('Vélo en liberté (12 km et 30 km)'),
@@ -106,8 +130,10 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
                       ['Enfant (5-13 ans)', '16,70 €'],
                     ]),
                     const SizedBox(height: 10),
-                    Text("LOCATION DE VÉLO ÉLECTRIQUE\nProfitez d'une balade en toute liberté grâce à nos vélos électriques disponibles sur place (sans réservation, selon disponibilité).\nTarif : 21,00 € (location) + entrée (parcours 12 ou 30 km).",
-                        style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13, height: 1.5)),
+                    Text(
+                      "LOCATION DE VÉLO ÉLECTRIQUE\nProfitez d'une balade en toute liberté grâce à nos vélos électriques disponibles sur place (sans réservation, selon disponibilité).\nTarif : 21,00 € (location) + entrée (parcours 12 ou 30 km).",
+                      style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 13, height: 1.5),
+                    ),
 
                     const SizedBox(height: 35),
                     _buildSectionTitle('Aperçu'),
@@ -116,6 +142,7 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
                       height: 220,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
                         children: [
                           _buildGalleryImage('assets/images/14.jpg'),
                           _buildGalleryImage('assets/images/15.jpg'),
@@ -146,14 +173,28 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  // --- HELPERS ---
+
   TableRow _buildTableRow(List<String> cells, {bool isHeader = false}) {
-    return TableRow(children: cells.map((cell) => Padding(padding: const EdgeInsets.all(8), child: Text(cell, style: GoogleFonts.montserrat(color: isHeader ? const Color(0xFFF1C40F) : Colors.white70, fontSize: 11, fontWeight: isHeader ? FontWeight.bold : FontWeight.normal)))).toList());
+    return TableRow(
+      children: cells.map((cell) => Padding(
+        padding: const EdgeInsets.all(8),
+        child: Text(
+          cell,
+          style: GoogleFonts.montserrat(
+            color: isHeader ? const Color(0xFFF1C40F) : Colors.white70,
+            fontSize: 11,
+            fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      )).toList(),
+    );
   }
 
   Widget _buildPriceTable(List<List<String>> data) {
@@ -164,14 +205,34 @@ class _MaraisSalantsAiguesMortesPageState extends State<MaraisSalantsAiguesMorte
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title.toUpperCase(), style: GoogleFonts.cinzel(color: const Color(0xFFF1C40F), fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2));
+    return Text(
+      title.toUpperCase(),
+      style: GoogleFonts.cinzel(color: const Color(0xFFF1C40F), fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+    );
   }
 
   Widget _buildGalleryImage(String path) {
-    return Container(width: 280, margin: const EdgeInsets.only(right: 15), decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover)));
+    return Container(
+      width: 280,
+      margin: const EdgeInsets.only(right: 15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover),
+      ),
+    );
   }
 
   Widget _buildTechRow(IconData icon, String label) {
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, color: const Color(0xFFF1C40F).withOpacity(0.5), size: 20), const SizedBox(width: 15), Expanded(child: Text(label, style: GoogleFonts.montserrat(color: Colors.white, fontSize: 13, height: 1.4)))]));
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: const Color(0xFFF1C40F).withOpacity(0.5), size: 20),
+          const SizedBox(width: 15),
+          Expanded(child: Text(label, style: GoogleFonts.montserrat(color: Colors.white, fontSize: 13, height: 1.4))),
+        ],
+      ),
+    );
   }
 }

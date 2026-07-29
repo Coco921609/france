@@ -13,35 +13,36 @@ class _CalanqueDeSugitonPageState extends State<CalanqueDeSugitonPage> {
   Widget build(BuildContext context) {
     const Color bleuMer = Color(0xFF2980B9);
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0B0C0E),
-        body: Stack(
-          children: [
-            // 1. IMAGE DE FOND
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: MediaQuery.of(context).size.height * 0.45,
-              child: Image.asset(
-                'assets/images/111.jpg',
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            // 2. PANNEAU DE CONTENU
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.62,
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B0C0E),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              // 1. IMAGE DE HAUT (Intégrée au défilement global)
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.45,
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF141619),
-                  borderRadius: BorderRadius.only(topRight: Radius.circular(50), topLeft: Radius.circular(50)),
+                child: Image.asset(
+                  'assets/images/111.jpg',
+                  fit: BoxFit.cover,
                 ),
-                child: SingleChildScrollView(
+              ),
+
+              // 2. CONTENU (Remonté légèrement pour le design)
+              Transform.translate(
+                offset: const Offset(0, -50),
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF141619),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(50),
+                      topRight: Radius.circular(50),
+                    ),
+                  ),
                   padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,31 +65,24 @@ class _CalanqueDeSugitonPageState extends State<CalanqueDeSugitonPage> {
                       // TABLEAU PÉRIODES
                       _buildSectionTitle('📅 المواسم الموصى بها', bleuMer),
                       const SizedBox(height: 15),
-                      Table(
-                        border: TableBorder.all(color: Colors.white10, width: 1),
-                        columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(2)},
-                        children: [
-                          _buildTableRow(['الموسم', 'نصائح'], isHeader: true, hColor: bleuMer),
-                          _buildTableRow(['🌱 الربيع', 'مثالي، درجات حرارة معتدلة وطبيعة مزهرة.']),
-                          _buildTableRow(['🍂 الخريف', 'مثالي، زحام أقل وحرارة محتملة.']),
-                          _buildTableRow(['☀️ الصيف', 'يُفضل تجنبه (حرارة، غبار، وازدحام).']),
-                        ],
-                      ),
+                      _buildTable([
+                        ['الموسم', 'نصائح'],
+                        ['🌱 الربيع', 'مثالي، درجات حرارة معتدلة وطبيعة مزهرة.'],
+                        ['🍂 الخريف', 'مثالي، زحام أقل وحرارة محتملة.'],
+                        ['☀️ الصيف', 'يُفضل تجنبه (حرارة، غبار، وازدحام).'],
+                      ], bleuMer),
 
                       const SizedBox(height: 35),
 
                       // TABLEAU HORAIRES
                       _buildSectionTitle('⏰ الأوقات الموصى بها', bleuMer),
                       const SizedBox(height: 15),
-                      Table(
-                        border: TableBorder.all(color: Colors.white10, width: 1),
-                        children: [
-                          _buildTableRow(['الوقت', 'نصائح'], isHeader: true, hColor: bleuMer),
-                          _buildTableRow(['🌅 الصباح الباكر', 'قبل 8 صباحاً: ضروري للمواقف والهدوء.']),
-                          _buildTableRow(['☀️ منتصف النهار', 'يُتجنب: حرارة شديدة على المسار الخرساني.']),
-                          _buildTableRow(['🌇 المساء', 'مثالي لغروب الشمس، لكن احذر حرارة العودة.']),
-                        ],
-                      ),
+                      _buildTable([
+                        ['الوقت', 'نصائح'],
+                        ['🌅 الصباح الباكر', 'قبل 8 صباحاً: ضروري للمواقف والهدوء.'],
+                        ['☀️ منتصف النهار', 'يُتجنب: حرارة شديدة على المسار الخرساني.'],
+                        ['🌇 المساء', 'مثالي لغروب الشمس، لكن احذر حرارة العودة.'],
+                      ], bleuMer),
 
                       const SizedBox(height: 35),
 
@@ -149,15 +143,19 @@ class _CalanqueDeSugitonPageState extends State<CalanqueDeSugitonPage> {
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  // --- HELPERS ---
+
   Widget _buildSectionTitle(String title, Color color) {
-    return Text(title, style: GoogleFonts.cairo(color: color, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2));
+    return Text(title,
+        style: GoogleFonts.cairo(
+            color: color, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2));
   }
 
   Widget _buildStep(String text) {
@@ -174,16 +172,23 @@ class _CalanqueDeSugitonPageState extends State<CalanqueDeSugitonPage> {
     );
   }
 
-  TableRow _buildTableRow(List<String> cells, {bool isHeader = false, Color? hColor}) {
-    return TableRow(
-      children: cells.map((cell) => Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(cell, style: GoogleFonts.cairo(
-          color: isHeader ? hColor : Colors.white70,
-          fontSize: 12,
-          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-        )),
-      )).toList(),
+  Widget _buildTable(List<List<String>> data, Color hColor) {
+    return Table(
+      border: TableBorder.all(color: Colors.white10, width: 1),
+      children: data.asMap().entries.map((entry) {
+        bool isHeader = entry.key == 0;
+        return TableRow(
+          children: entry.value.map((cell) => Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text(cell,
+                style: GoogleFonts.cairo(
+                  color: isHeader ? hColor : Colors.white70,
+                  fontSize: 12,
+                  fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+                )),
+          )).toList(),
+        );
+      }).toList(),
     );
   }
 

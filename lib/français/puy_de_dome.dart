@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class PuyDeDomePage extends StatefulWidget {
   const PuyDeDomePage({super.key});
@@ -17,34 +16,34 @@ class _PuyDeDomePageState extends State<PuyDeDomePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/8.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  Container(color: Colors.grey[900]),
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/8.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    Container(color: Colors.grey[900]),
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,8 +59,7 @@ class _PuyDeDomePageState extends State<PuyDeDomePage> {
                     const SizedBox(height: 15),
 
                     // ANALOGIE & LIEU
-                    _buildTranslationLine(
-                        "Auvergne", "Un air de Fuji-san (Japon)", vertVolcan),
+                    _buildTranslationLine("Auvergne", "Un air de Fuji-san (Japon)", vertVolcan),
 
                     const SizedBox(height: 25),
 
@@ -107,7 +105,7 @@ class _PuyDeDomePageState extends State<PuyDeDomePage> {
 
                     const SizedBox(height: 35),
 
-                    // NOUVELLE SECTION : SECRETS & ANECDOTES
+                    // SECRETS & ANECDOTES
                     _buildSectionTitle('💡 Anecdotes & faits', vertVolcan),
                     const SizedBox(height: 15),
                     Container(
@@ -119,21 +117,9 @@ class _PuyDeDomePageState extends State<PuyDeDomePage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(
-                            Icons.landscape_outlined,
-                            "Point culminant de la Chaîne des Puys avec 1 465 mètres d'altitude.",
-                            vertVolcan,
-                          ),
-                          _buildTechRow(
-                            Icons.bolt,
-                            "Ancien site du Temple de Mercure construit au IIe siècle.",
-                            vertVolcan,
-                          ),
-                          _buildTechRow(
-                            Icons.directions_walk,
-                            "Accès possible à pied gratuitement par le sentier des Muletiers.",
-                            vertVolcan,
-                          ),
+                          _buildTechRow(Icons.landscape_outlined, "Point culminant de la Chaîne des Puys avec 1 465 mètres d'altitude.", vertVolcan),
+                          _buildTechRow(Icons.bolt, "Ancien site du Temple de Mercure construit au IIe siècle.", vertVolcan),
+                          _buildTechRow(Icons.directions_walk, "Accès possible à pied gratuitement par le sentier des Muletiers.", vertVolcan),
                         ],
                       ),
                     ),
@@ -169,24 +155,12 @@ class _PuyDeDomePageState extends State<PuyDeDomePage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(
-                              Icons.camera_enhance_outlined,
-                              "Appareil photo indispensable", vertVolcan),
-                          _buildTechRow(
-                              Icons.map_outlined,
-                              "Situé près de Clermont-Ferrand", vertVolcan),
-                          _buildTechRow(
-                              Icons.train_outlined,
-                              "Accessible via le train à crémaillère (Payant)", vertVolcan),
-                          _buildTechRow(
-                              Icons.euro_symbol,
-                              "Tarifs : Randonnée (Gratuit) / Train (~15€, à vérifier)", vertVolcan),
-                          _buildTechRow(
-                              Icons.auto_awesome,
-                              "Grand Site de France", vertVolcan),
-                          _buildTechRow(
-                              Icons.park,
-                              "Parc naturel régional des Volcans d'Auvergne", vertVolcan),
+                          _buildTechRow(Icons.camera_enhance_outlined, "Appareil photo indispensable", vertVolcan),
+                          _buildTechRow(Icons.map_outlined, "Situé près de Clermont-Ferrand", vertVolcan),
+                          _buildTechRow(Icons.train_outlined, "Accessible via le train à crémaillère (Payant)", vertVolcan),
+                          _buildTechRow(Icons.euro_symbol, "Tarifs : Randonnée (Gratuit) / Train (~15€, à vérifier)", vertVolcan),
+                          _buildTechRow(Icons.auto_awesome, "Grand Site de France", vertVolcan),
+                          _buildTechRow(Icons.park, "Parc naturel régional des Volcans d'Auvergne", vertVolcan),
                         ],
                       ),
                     ),
@@ -195,8 +169,8 @@ class _PuyDeDomePageState extends State<PuyDeDomePage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -234,8 +208,7 @@ class _PuyDeDomePageState extends State<PuyDeDomePage> {
                 style: GoogleFonts.montserrat(
                   color: idx == 0 ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight:
-                  idx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
                 ),
                 softWrap: true),
           ))

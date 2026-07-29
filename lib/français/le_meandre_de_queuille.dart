@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class MeandreQueuillePage extends StatefulWidget {
   const MeandreQueuillePage({super.key});
@@ -17,32 +16,32 @@ class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +57,7 @@ class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
                     const SizedBox(height: 15),
 
                     // ANALOGIE & LIEU
-                    _buildTranslationLine(
-                        "Puy-de-Dôme", "Un air d'Amazonie (Brésil)", vertQueuille),
+                    _buildTranslationLine("Puy-de-Dôme", "Un air d'Amazonie (Brésil)", vertQueuille),
 
                     const SizedBox(height: 25),
 
@@ -84,10 +82,7 @@ class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
                     const SizedBox(height: 15),
                     _buildTable([
                       ['Moment', 'Conseils'],
-                      [
-                        '🌅 Matinée',
-                        'Brume matinale pour une ambiance mystique'
-                      ],
+                      ['🌅 Matinée', 'Brume matinale pour une ambiance mystique'],
                       ['🍂 Automne', 'Forêt aux couleurs flamboyantes'],
                       ['☀️ Été', 'Vert intense (effet jungle garanti)'],
                     ], vertQueuille),
@@ -102,11 +97,9 @@ class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         children: [
-                          _buildGalleryImage(
-                              'assets/images/4f26bf43d724d27dd2d2277f502c8505.jpg'),
+                          _buildGalleryImage('assets/images/4f26bf43d724d27dd2d2277f502c8505.jpg'),
                           _buildGalleryImage('assets/images/maxresdefault.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg'),
+                          _buildGalleryImage('assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg'),
                         ],
                       ),
                     ),
@@ -123,14 +116,10 @@ class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.visibility,
-                              "Belvédère accessible gratuitement", vertQueuille),
-                          _buildTechRow(Icons.place,
-                              "Situé dans le village de Queuille", vertQueuille),
-                          _buildTechRow(Icons.info_outline,
-                              "Facile d'accès (proche parking)", vertQueuille),
-                          _buildTechRow(Icons.camera_alt,
-                              "Photo iconique depuis le parvis", vertQueuille),
+                          _buildTechRow(Icons.visibility, "Belvédère accessible gratuitement", vertQueuille),
+                          _buildTechRow(Icons.place, "Situé dans le village de Queuille", vertQueuille),
+                          _buildTechRow(Icons.info_outline, "Facile d'accès (proche parking)", vertQueuille),
+                          _buildTechRow(Icons.camera_alt, "Photo iconique depuis le parvis", vertQueuille),
                         ],
                       ),
                     ),
@@ -139,19 +128,13 @@ class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // --- HELPERS DESIGN ---
-
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap) => CircleAvatar(
-    backgroundColor: Colors.black45,
-    child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 18), onPressed: tap),
-  );
 
   Widget _buildTranslationLine(String ville, String analogie, Color color) {
     return Wrap(
@@ -184,8 +167,7 @@ class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
                 style: GoogleFonts.montserrat(
                   color: idx == 0 ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight:
-                  idx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
                 ),
                 softWrap: true),
           ))

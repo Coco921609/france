@@ -16,32 +16,32 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND FIXE (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/des-ocres-des-couleurs.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. PANNEAU DE CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/des-ocres-des-couleurs.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,19 +145,13 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // --- MÉTHODES HELPERS ---
-
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap) => CircleAvatar(
-    backgroundColor: Colors.black45,
-    child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 18), onPressed: tap),
-  );
 
   Widget _buildTable(List<List<String>> data, Color hColor) {
     return Table(
@@ -201,7 +195,7 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
 
   Widget _buildGalleryImage(String path) {
     return Container(
-      width: 280, // Largeur harmonisée avec le Parc Monceau
+      width: 280,
       margin: const EdgeInsets.only(right: 15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),

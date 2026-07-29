@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class RougierCamaresPage extends StatefulWidget {
   const RougierCamaresPage({super.key});
@@ -12,37 +11,36 @@ class RougierCamaresPage extends StatefulWidget {
 class _RougierCamaresPageState extends State<RougierCamaresPage> {
   @override
   Widget build(BuildContext context) {
-    // Couleur thématique : Rouge Brique / Ocre profond
     const Color rougeRougier = Color(0xFFB03A2E);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/large_d-sert-du-rougier-de-camar-s.1619435_91a67ef00c.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/large_d-sert-du-rougier-de-camar-s.1619435_91a67ef00c.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +56,7 @@ class _RougierCamaresPageState extends State<RougierCamaresPage> {
                     const SizedBox(height: 15),
 
                     // ANALOGIE & LIEU
-                    _buildTranslationLine(
-                        "Aveyron", "Un air de Far West américain", rougeRougier),
+                    _buildTranslationLine("Aveyron", "Un air de Far West américain", rougeRougier),
 
                     const SizedBox(height: 25),
 
@@ -85,10 +82,7 @@ class _RougierCamaresPageState extends State<RougierCamaresPage> {
                     _buildTable([
                       ['Moment', 'Conseils de visite'],
                       ['🌅 Fin de journée', 'Lumière rasante sublime le rouge'],
-                      [
-                        '🍂 Automne / Printemps',
-                        'Températures idéales pour marcher'
-                      ],
+                      ['🍂 Automne / Printemps', 'Températures idéales pour marcher'],
                       ['☀️ Été', 'Attention : forte chaleur au sol'],
                     ], rougeRougier),
 
@@ -102,12 +96,9 @@ class _RougierCamaresPageState extends State<RougierCamaresPage> {
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         children: [
-                          _buildGalleryImage(
-                              'assets/images/dji_0699--_steloweb---copie_w2000.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/rougier-960x640.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/large_d-sert-du-rougier-de-camar-s.1619435_91a67ef00c.jpg'),
+                          _buildGalleryImage('assets/images/dji_0699--_steloweb---copie_w2000.jpg'),
+                          _buildGalleryImage('assets/images/rougier-960x640.jpg'),
+                          _buildGalleryImage('assets/images/large_d-sert-du-rougier-de-camar-s.1619435_91a67ef00c.jpg'),
                         ],
                       ),
                     ),
@@ -124,14 +115,10 @@ class _RougierCamaresPageState extends State<RougierCamaresPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.map_outlined,
-                              "Situé près de Camarès", rougeRougier),
-                          _buildTechRow(Icons.directions_walk,
-                              "Nombreux sentiers de randonnée", rougeRougier),
-                          _buildTechRow(Icons.wb_sunny_outlined,
-                              "Prévoir eau et chapeau", rougeRougier),
-                          _buildTechRow(Icons.camera_alt,
-                              "Paysage unique pour les photos", rougeRougier),
+                          _buildTechRow(Icons.map_outlined, "Situé près de Camarès", rougeRougier),
+                          _buildTechRow(Icons.directions_walk, "Nombreux sentiers de randonnée", rougeRougier),
+                          _buildTechRow(Icons.wb_sunny_outlined, "Prévoir eau et chapeau", rougeRougier),
+                          _buildTechRow(Icons.camera_alt, "Paysage unique pour les photos", rougeRougier),
                         ],
                       ),
                     ),
@@ -140,19 +127,13 @@ class _RougierCamaresPageState extends State<RougierCamaresPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // --- HELPERS DESIGN ---
-
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap) => CircleAvatar(
-    backgroundColor: Colors.black45,
-    child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 18), onPressed: tap),
-  );
 
   Widget _buildTranslationLine(String ville, String analogie, Color color) {
     return Wrap(
@@ -185,8 +166,7 @@ class _RougierCamaresPageState extends State<RougierCamaresPage> {
                 style: GoogleFonts.montserrat(
                   color: idx == 0 ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight:
-                  idx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
                 ),
                 softWrap: true),
           ))

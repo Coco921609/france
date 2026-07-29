@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class PontDuGardPage extends StatefulWidget {
   const PontDuGardPage({super.key});
@@ -17,34 +16,34 @@ class _PontDuGardPageState extends State<PontDuGardPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/6.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  Container(color: Colors.grey[900]),
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/6.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    Container(color: Colors.grey[900]),
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,8 +59,7 @@ class _PontDuGardPageState extends State<PontDuGardPage> {
                     const SizedBox(height: 15),
 
                     // ANALOGIE & LIEU
-                    _buildTranslationLine(
-                        "Occitanie", "Un air de Colisée (Italie)", pierreRomaine),
+                    _buildTranslationLine("Occitanie", "Un air de Colisée (Italie)", pierreRomaine),
 
                     const SizedBox(height: 25),
 
@@ -107,7 +105,7 @@ class _PontDuGardPageState extends State<PontDuGardPage> {
 
                     const SizedBox(height: 35),
 
-                    // NOUVELLE SECTION : SECRETS & ANECDOTES
+                    // SECRETS & ANECDOTES
                     _buildSectionTitle('💡 Anecdotes & faits', pierreRomaine),
                     const SizedBox(height: 15),
                     Container(
@@ -119,21 +117,9 @@ class _PontDuGardPageState extends State<PontDuGardPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(
-                            Icons.architecture,
-                            "Construit au Ier siècle après J.-C. pour alimenter Nîmes en eau.",
-                            pierreRomaine,
-                          ),
-                          _buildTechRow(
-                            Icons.straighten,
-                            "Il mesure 48 mètres de haut, ce qui en fait le pont-aqueduc romain le plus haut du monde.",
-                            pierreRomaine,
-                          ),
-                          _buildTechRow(
-                            Icons.nature_people,
-                            "Entouré d'espaces naturels protégés propices à la détente.",
-                            pierreRomaine,
-                          ),
+                          _buildTechRow(Icons.architecture, "Construit au Ier siècle après J.-C. pour alimenter Nîmes en eau.", pierreRomaine),
+                          _buildTechRow(Icons.straighten, "Il mesure 48 mètres de haut, ce qui en fait le pont-aqueduc romain le plus haut du monde.", pierreRomaine),
+                          _buildTechRow(Icons.nature_people, "Entouré d'espaces naturels protégés propices à la détente.", pierreRomaine),
                         ],
                       ),
                     ),
@@ -169,16 +155,11 @@ class _PontDuGardPageState extends State<PontDuGardPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.camera_enhance_outlined,
-                              "Appareil photo indispensable", pierreRomaine),
-                          _buildTechRow(Icons.map_outlined,
-                              "Situé près de Vers-Pont-du-Gard", pierreRomaine),
-                          _buildTechRow(Icons.directions_car,
-                              "Stationnement payant par véhicule (à vérifier sur place)", pierreRomaine),
-                          _buildTechRow(Icons.euro_symbol,
-                              "Tarif d'accès au site : variable selon la saison", pierreRomaine),
-                          _buildTechRow(Icons.auto_awesome,
-                              "Classé au patrimoine mondial de l'UNESCO", pierreRomaine),
+                          _buildTechRow(Icons.camera_enhance_outlined, "Appareil photo indispensable", pierreRomaine),
+                          _buildTechRow(Icons.map_outlined, "Situé près de Vers-Pont-du-Gard", pierreRomaine),
+                          _buildTechRow(Icons.directions_car, "Stationnement payant par véhicule (à vérifier sur place)", pierreRomaine),
+                          _buildTechRow(Icons.euro_symbol, "Tarif d'accès au site : variable selon la saison", pierreRomaine),
+                          _buildTechRow(Icons.auto_awesome, "Classé au patrimoine mondial de l'UNESCO", pierreRomaine),
                         ],
                       ),
                     ),
@@ -187,8 +168,8 @@ class _PontDuGardPageState extends State<PontDuGardPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -226,8 +207,7 @@ class _PontDuGardPageState extends State<PontDuGardPage> {
                 style: GoogleFonts.montserrat(
                   color: idx == 0 ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight:
-                  idx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
                 ),
                 softWrap: true),
           ))

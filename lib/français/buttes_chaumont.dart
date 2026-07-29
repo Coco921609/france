@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class ButtesChaumontPage extends StatefulWidget {
   const ButtesChaumontPage({super.key});
@@ -12,43 +11,43 @@ class ButtesChaumontPage extends StatefulWidget {
 class _ButtesChaumontPageState extends State<ButtesChaumontPage> {
   @override
   Widget build(BuildContext context) {
-    // Couleur thématique pour les Buttes-Chaumont (Bleu Ciel / Eau)
+    // Couleur thématique : Bleu Ciel / Eau
     const Color bleuParc = Color(0xFF5DADE2);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND (HAUT)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/parc-des-Buttes-Chaumont-de-Paris.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. CONTENU DÉFILABLE (CONTENEUR NOIR ARRONDIT)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/parc-des-Buttes-Chaumont-de-Paris.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Buttes-Chaumont 🌳',
+                      'Parc des Buttes-Chaumont 🦢',
                       style: GoogleFonts.cinzel(
                         color: bleuParc,
                         fontSize: 28,
@@ -58,7 +57,7 @@ class _ButtesChaumontPageState extends State<ButtesChaumontPage> {
                     const SizedBox(height: 15),
 
                     // ANALOGIE & LIEU
-                    _buildTranslationLine("Paris 19e", "Un air d'Italie (Tivoli)", bleuParc),
+                    _buildTranslationLine("Paris 19ème", "Un air d'Italie (Tivoli)", bleuParc),
 
                     const SizedBox(height: 25),
 
@@ -73,34 +72,34 @@ class _ButtesChaumontPageState extends State<ButtesChaumontPage> {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      "Ancienne carrière escarpée offrant des vues spectaculaires, des grottes secrètes et un lac suspendu dominé par le temple de la Sybille.",
+                      "Une ancienne carrière escarpée offrant des vues spectaculaires, des grottes secrètes et un lac suspendu dominé par le Temple de la Sybille.",
                       style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15, height: 1.6),
                     ),
                     const SizedBox(height: 35),
 
-                    _buildSectionTitle('Guide des saisons', bleuParc),
+                    _buildSectionTitle('📅 Guide des saisons', bleuParc),
                     const SizedBox(height: 15),
                     _buildTable([
                       ['Saison', 'Détails de visite'],
-                      ['🍂 Automne', 'Magnifiques couleurs rousses (Recommandé)'],
-                      ['🌱 Printemps', 'Végétation en fleurs et fraîcheur'],
+                      ['🍂 Automne', 'Couleurs rougeâtres magnifiques (Recommandé)'],
+                      ['🌱 Printemps', 'Végétation fleurie et fraîcheur'],
                       ['☀️ Été', 'Parfait pour les pique-niques'],
-                      ['❄️ Hiver', 'À éviter : froid et vent fort'],
+                      ['❄️ Hiver', 'À éviter : froid et vents violents'],
                     ], bleuParc),
 
                     const SizedBox(height: 35),
 
-                    _buildSectionTitle('Affluence & horaires', bleuParc),
+                    _buildSectionTitle('🕓 Affluence & Horaires', bleuParc),
                     const SizedBox(height: 15),
                     _buildTable([
                       ['Moment', 'Recommandation'],
                       ['✨ Idéal', 'Tôt le matin ou fin d\'après-midi'],
-                      ['👥 Chargé', '12h - 14h et week-ends'],
+                      ['👥 Chargé', '12h00 - 14h00 et Week-ends'],
                     ], bleuParc),
 
                     const SizedBox(height: 35),
 
-                    _buildSectionTitle('Aperçu du lieu', bleuParc),
+                    _buildSectionTitle('📸 Aperçu du lieu', bleuParc),
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 220,
@@ -118,7 +117,7 @@ class _ButtesChaumontPageState extends State<ButtesChaumontPage> {
 
                     const SizedBox(height: 35),
 
-                    _buildSectionTitle('Infos pratiques', bleuParc),
+                    _buildSectionTitle('📋 Infos pratiques', bleuParc),
                     Container(
                       margin: const EdgeInsets.only(top: 15),
                       padding: const EdgeInsets.all(20),
@@ -129,10 +128,10 @@ class _ButtesChaumontPageState extends State<ButtesChaumontPage> {
                       child: Column(
                         children: [
                           _buildTechRow(Icons.wc, "Toilettes : Oui", bleuParc),
-                          _buildTechRow(Icons.wifi, "Wifi : Oui", bleuParc),
+                          _buildTechRow(Icons.wifi, "WIFI : Oui", bleuParc),
                           _buildTechRow(Icons.child_care, "Table à langer : Oui", bleuParc),
-                          _buildTechRow(Icons.local_drink, "Distributeur de boissons : Non", bleuParc),
-                          _buildTechRow(Icons.pets, "Animaux : Oui (Laisse obligatoire)", bleuParc),
+                          _buildTechRow(Icons.local_drink, "Distributeur : Non", bleuParc),
+                          _buildTechRow(Icons.pets, "Animaux : Oui (laisse obligatoire)", bleuParc),
                         ],
                       ),
                     ),
@@ -141,13 +140,13 @@ class _ButtesChaumontPageState extends State<ButtesChaumontPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // --- HELPERS IDENTIQUES AU DESIGN GORGES DU FIER ---
+  // --- HELPERS ---
 
   Widget _buildTranslationLine(String ville, String analogie, Color color) {
     return Wrap(
@@ -167,17 +166,16 @@ class _ButtesChaumontPageState extends State<ButtesChaumontPage> {
     return Table(
       border: TableBorder.all(color: Colors.white10, width: 1),
       children: data.asMap().entries.map((entry) {
-        int idx = entry.key;
+        bool isHeader = entry.key == 0;
         return TableRow(
           children: entry.value.map((cell) => Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             child: Text(cell,
                 style: GoogleFonts.montserrat(
-                  color: idx == 0 ? hColor : Colors.white70,
+                  color: isHeader ? hColor : Colors.white70,
                   fontSize: 12,
-                  fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
-                ),
-                softWrap: true),
+                  fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+                )),
           )).toList(),
         );
       }).toList(),

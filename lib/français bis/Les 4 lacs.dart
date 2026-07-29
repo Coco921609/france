@@ -11,92 +11,106 @@ class QuatreLacsPage extends StatefulWidget {
 class _QuatreLacsPageState extends State<QuatreLacsPage> {
   @override
   Widget build(BuildContext context) {
-    const Color turquoise = Color(0xFF40E0D0);
+    const Color bleuLoch = Color(0xFF2874A6);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND FIXE
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/image/18.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. PANNEAU DE CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/image/11.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Le Plateau des 4 Lacs 🌲',
+                      'Les 4 Lacs 🏴󠁧󠁢󠁳󠁣󠁴󠁿',
                       style: GoogleFonts.cinzel(
-                        color: turquoise,
-                        fontSize: 28,
+                        color: bleuLoch,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      " 🇫🇮 La Petite Finlande au cœur du Jura",
-                      style: GoogleFonts.montserrat(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
+                    const SizedBox(height: 15),
+
+                    // --- FAITS CLÉS ---
+                    _buildFactLine("Noms", "Ilay, Narlay, Petit & Grand Maclu", bleuLoch),
+                    _buildFactLine("Point de vue", "Belvédère du Pic de l'Aigle", bleuLoch),
+                    _buildFactLine("Air de", "Highlands (Écosse 🏴󠁧󠁢󠁳󠁣󠁴󠁿)", bleuLoch),
+
                     const SizedBox(height: 25),
                     Text(
-                      "Un écrin naturel préservé",
+                      "🏴󠁧󠁢󠁳󠁣󠁴󠁿 La Petite Écosse au cœur du Jura",
                       style: GoogleFonts.montserrat(
-                        color: turquoise.withOpacity(0.7),
+                        color: bleuLoch.withOpacity(0.7),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      "Situé dans le Haut-Jura, le plateau des 4 lacs (Ilay, Narlay, Grand Maclu et Petit Maclu) forme un ensemble naturel exceptionnel. Ce site classé offre des paysages boisés et des eaux paisibles qui rappellent les grands espaces sauvages nordiques.",
+                      "Surnommée la « Petite Écosse », la région des 4 lacs offre un panorama à couper le souffle. Entourés de denses forêts de sapins, ces joyaux glaciaires aux eaux émeraude et turquoise se dévoilent de façon spectaculaire depuis le sommet du Pic de l'Aigle, dans une ambiance mystique digne des Highlands.",
                       style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15, height: 1.6),
                     ),
                     const SizedBox(height: 35),
 
-                    // TABLEAU DES LACS
-                    _buildSectionTitle('💧 Les 4 joyaux'),
+                    // TABLEAU PÉRIODES
+                    _buildSectionTitle('📅 Meilleures saisons', bleuLoch),
                     const SizedBox(height: 15),
                     Table(
                       border: TableBorder.all(color: Colors.white10, width: 1),
                       columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(2)},
                       children: [
-                        _buildTableRow(['Lac', 'Particularité'], isHeader: true, hColor: turquoise),
-                        _buildTableRow(['Narlay', 'Le plus profond, mystérieux']),
-                        _buildTableRow(['Ilay', 'Le plus vaste, vue célèbre']),
-                        _buildTableRow(['Grand Maclu', 'Sauvage et préservé']),
-                        _buildTableRow(['Petit Maclu', 'L\'écrin intime et discret']),
+                        _buildTableRow(['Saison', 'Ambiance & Conseils'], isHeader: true, hColor: bleuLoch),
+                        _buildTableRow(['🍂 Automne', 'RECOMMANDÉ : Brumes matinales, couleurs rousses et ambiance 100% écossaise']),
+                        _buildTableRow(['☀️ Été', 'Agréable pour de longues randonnées, mais belvédères souvent très fréquentés']),
+                        _buildTableRow(['❄️ Hiver', 'À ÉVITER (ou prudence) : Sentiers vers le Pic de l\'Aigle enneigés et parfois verglacés']),
+                      ],
+                    ),
+
+                    const SizedBox(height: 35),
+
+                    // TABLEAU HORAIRES
+                    _buildSectionTitle('⏰ Horaires conseillés', bleuLoch),
+                    const SizedBox(height: 15),
+                    Table(
+                      border: TableBorder.all(color: Colors.white10, width: 1),
+                      columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(2)},
+                      children: [
+                        _buildTableRow(['Moment', 'Conseils'], isHeader: true, hColor: bleuLoch),
+                        _buildTableRow(['✨ Matin', 'RECOMMANDÉ : Magique avec la brume planant au-dessus des lacs']),
+                        _buildTableRow(['🌅 Soir', 'RECOMMANDÉ : Couleurs chaudes du coucher de soleil depuis le belvédère']),
+                        _buildTableRow(['🌙 Nuit', 'À ÉVITER : Zones non éclairées, danger de chute sur les crêtes']),
                       ],
                     ),
 
                     const SizedBox(height: 35),
 
                     // GALERIE PHOTO
-                    _buildSectionTitle('📸 Aperçu du lieu'),
+                    _buildSectionTitle('📸 Aperçu du lieu', bleuLoch),
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 220,
@@ -104,8 +118,11 @@ class _QuatreLacsPageState extends State<QuatreLacsPage> {
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         children: [
+                          _buildGalleryImage('assets/image/10.jpg'),
+                          _buildGalleryImage('assets/image/12.jpg'),
+                          _buildGalleryImage('assets/image/15.jpeg'),
                           _buildGalleryImage('assets/image/17.jpg'),
-                          _buildGalleryImage('assets/image/21.jpg'),
+                          _buildGalleryImage('assets/image/14.webp'),
                         ],
                       ),
                     ),
@@ -113,7 +130,7 @@ class _QuatreLacsPageState extends State<QuatreLacsPage> {
                     const SizedBox(height: 35),
 
                     // INFOS PRATIQUES
-                    _buildSectionTitle('📋 Conseils de visite'),
+                    _buildSectionTitle('📋 Indispensables & Infos', bleuLoch),
                     Container(
                       margin: const EdgeInsets.only(top: 15),
                       padding: const EdgeInsets.all(20),
@@ -123,10 +140,10 @@ class _QuatreLacsPageState extends State<QuatreLacsPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.calendar_today, "Saison idéale : Printemps et Automne (couleurs)", turquoise),
-                          _buildTechRow(Icons.block, "À éviter : Périodes de fortes affluences estivales", turquoise),
-                          _buildTechRow(Icons.access_time, "Horaires : Arrivée matinale conseillée", turquoise),
-                          _buildTechRow(Icons.hiking, "Randonnée : Sentier balisé du belvédère des 4 lacs", turquoise),
+                          _buildTechRow(Icons.map_outlined, "Situé dans le département du Jura", bleuLoch),
+                          _buildTechRow(Icons.directions_walk, "Randonnée indispensable jusqu'au Belvédère des 4 lacs", bleuLoch),
+                          _buildTechRow(Icons.do_not_disturb_alt, "Baignade souvent réglementée ou interdite pour préserver les lieux", bleuLoch),
+                          _buildTechRow(Icons.camera_alt, "Lieu exceptionnel pour la photographie de paysage", bleuLoch),
                         ],
                       ),
                     ),
@@ -135,13 +152,28 @@ class _QuatreLacsPageState extends State<QuatreLacsPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // --- MÉTHODES DE STYLE ---
+  // --- HELPERS ---
+
+  Widget _buildFactLine(String label, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Text(label, style: GoogleFonts.montserrat(color: color, fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(width: 12),
+          const Icon(Icons.arrow_forward, color: Colors.white24, size: 16),
+          const SizedBox(width: 12),
+          Expanded(child: Text(value, style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 16))),
+        ],
+      ),
+    );
+  }
 
   TableRow _buildTableRow(List<String> cells, {bool isHeader = false, Color? hColor}) {
     return TableRow(
@@ -156,8 +188,8 @@ class _QuatreLacsPageState extends State<QuatreLacsPage> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(title, style: GoogleFonts.cinzel(color: const Color(0xFF40E0D0), fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2));
+  Widget _buildSectionTitle(String title, Color color) {
+    return Text(title, style: GoogleFonts.cinzel(color: color, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2));
   }
 
   Widget _buildGalleryImage(String path) {
@@ -166,6 +198,7 @@ class _QuatreLacsPageState extends State<QuatreLacsPage> {
       margin: const EdgeInsets.only(right: 15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
+        color: Colors.white10,
         image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover),
       ),
     );

@@ -2,44 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'exploration_page.dart';
 
-// Gestionnaire pour les notifications en arrière-plan
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-}
-
 void main() async {
-  // 1. Initialisation des services Flutter
+  // 1. Nécessaire pour appeler du code natif (Firebase, AdMob, Orientations) avant runApp
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Initialisation de Firebase
-  await Firebase.initializeApp();
-
-  // Gestion des messages en arrière-plan
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // 3. Configuration des permissions pour les notifications (iOS/Android)
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-
-  // Gestion de la réception quand l'app est ouverte
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // La notification est reçue alors que l'utilisateur utilise l'app
-    debugPrint("Notification reçue: ${message.notification?.title}");
-  });
-
-  // 4. Blocage de l'orientation en mode Portrait
-  SystemChrome.setPreferredOrientations([
+  // 2. Forcer le mode portrait uniquement
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((_) {
-    runApp(const FranceSecreteApp());
-  });
+  ]);
+
+  // 3. Initialisation des services tiers (Firebase & Google Mobile Ads)
+  // On utilise "await" pour s'assurer que tout est prêt avant de dessiner l'interface.
+  try {
+    await Firebase.initializeApp();
+    await MobileAds.instance.initialize();
+    FirebaseMessaging.instance.requestPermission();
+  } catch (e) {
+    debugPrint("Erreur d'initialisation des services: $e");
+  }
+
+  // 4. Lancement de l'interface utilisateur
+  runApp(const FranceSecreteApp());
 }
 
 class FranceSecreteApp extends StatelessWidget {
@@ -50,18 +37,12 @@ class FranceSecreteApp extends StatelessWidget {
     return MaterialApp(
       title: 'France Secrete',
       debugShowCheckedModeBanner: false,
-
-      // Configuration du thème (Sombre et Turquoise)
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF050A0E),
-        primaryColor: const Color(0xFF40E0D0),
         useMaterial3: true,
       ),
-
-      // Page de démarrage sans paramètre,
-      // car la gestion de la langue se fait désormais dans ExplorationPage
-      home: const ExplorationPage(langueInitiale: '',),
+      home: const ExplorationPage(langueInitiale: ''),
     );
   }
 }

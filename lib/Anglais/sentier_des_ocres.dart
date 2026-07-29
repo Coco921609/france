@@ -16,32 +16,32 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. FIXED BACKGROUND IMAGE (TOP)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/des-ocres-des-couleurs.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. SCROLLABLE CONTENT PANEL
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/des-ocres-des-couleurs.jpg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +77,7 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
                     ),
                     const SizedBox(height: 35),
 
-                    // VISIT CALENDAR SECTION
+                    // VISIT CALENDAR
                     _buildSectionTitle('📅 Visit Calendar', ocreArizona),
                     const SizedBox(height: 15),
                     _buildTable([
@@ -89,7 +89,7 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
 
                     const SizedBox(height: 35),
 
-                    // TIMING SECTION
+                    // TIMING
                     _buildSectionTitle('⏰ Visiting Hours', ocreArizona),
                     const SizedBox(height: 15),
                     _buildTable([
@@ -101,7 +101,7 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
 
                     const SizedBox(height: 35),
 
-                    // GALLERY SECTION
+                    // GALLERY
                     _buildSectionTitle('📸 Preview of the site', ocreArizona),
                     const SizedBox(height: 20),
                     SizedBox(
@@ -120,7 +120,7 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
 
                     const SizedBox(height: 35),
 
-                    // PRACTICAL INFO SECTION
+                    // ESSENTIALS & INFO
                     _buildSectionTitle('📋 Essentials & Info', ocreArizona),
                     Container(
                       margin: const EdgeInsets.only(top: 15),
@@ -145,30 +145,19 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // --- HELPER METHODS ---
-
-  // ignore: unused_element
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap) => CircleAvatar(
-    backgroundColor: Colors.black45,
-    child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 18), onPressed: tap),
-  );
+  // --- HELPERS ---
 
   Widget _buildTable(List<List<String>> data, Color hColor) {
     return Table(
       border: TableBorder.all(color: Colors.white10, width: 1),
-      columnWidths: const {
-        0: FlexColumnWidth(1),
-        1: FlexColumnWidth(2),
-      },
       children: data.asMap().entries.map((entry) {
-        int idx = entry.key;
+        bool isHeader = entry.key == 0;
         return TableRow(
           children: entry.value
               .map((cell) => Padding(
@@ -176,9 +165,10 @@ class _SentierDesOcresPageState extends State<SentierDesOcresPage> {
             child: Text(
               cell,
               style: GoogleFonts.montserrat(
-                color: idx == 0 ? hColor : Colors.white70,
+                color: isHeader ? hColor : Colors.white70,
                 fontSize: 12,
-                fontWeight: idx == 0 ? FontWeight.bold : FontWeight.normal,
+                fontWeight:
+                isHeader ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ))

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class IleDeLaViergePage extends StatefulWidget {
   const IleDeLaViergePage({super.key});
@@ -10,38 +9,39 @@ class IleDeLaViergePage extends StatefulWidget {
 }
 
 class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
-  bool _isFavorite = false;
-
   @override
   Widget build(BuildContext context) {
+    const Color turquoise = Color(0xFF40E0D0);
+
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. IMAGE DE FOND FIXE
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/presqu-ile-de-crozon-1-1200x675.jpeg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. PANNEAU DE CONTENU DÉFILABLE
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      // SingleChildScrollView permet un défilement "site web" global
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/presqu-ile-de-crozon-1-1200x675.jpeg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. PANNEAU DE CONTENU (Remonte légèrement pour l'effet design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +51,7 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                       child: Text(
                         'Île de la Vierge 🌊',
                         style: GoogleFonts.cinzel(
-                          color: const Color(0xFF40E0D0),
+                          color: turquoise,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
@@ -61,7 +61,7 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                     Text(
                       "🏝️ Un air de Caraïbes en Bretagne",
                       style: GoogleFonts.montserrat(
-                        color: const Color(0xFF40E0D0).withOpacity(0.7),
+                        color: turquoise.withOpacity(0.7),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontStyle: FontStyle.italic,
@@ -87,14 +87,10 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                         1: FlexColumnWidth(2)
                       },
                       children: [
-                        _buildTableRow(['Statut', 'Météo & Couleurs'],
-                            isHeader: true),
-                        _buildTableRow(
-                            ['✅ Top', 'Mai à Septembre (Eaux turquoise)']),
-                        _buildTableRow(
-                            ['🌤️ Ok', 'Avril & Octobre (Belle lumière)']),
-                        _buildTableRow(
-                            ['🌧️ Prudence', 'Hiver (Vents forts & pluie)']),
+                        _buildTableRow(['Statut', 'Météo & Couleurs'], isHeader: true),
+                        _buildTableRow(['✅ Top', 'Mai à Septembre (Eaux turquoise)']),
+                        _buildTableRow(['🌤️ Ok', 'Avril & Octobre (Belle lumière)']),
+                        _buildTableRow(['🌧️ Prudence', 'Hiver (Vents forts & pluie)']),
                       ],
                     ),
 
@@ -112,10 +108,8 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                       children: [
                         _buildTableRow(['Moment', 'Conseils'], isHeader: true),
                         _buildTableRow(['✨ Matin', 'Idéal pour le calme (8 h - 10 h)']),
-                        _buildTableRow(
-                            ['☀️ Midi', 'Lumière max sur l\'eau turquoise']),
-                        _buildTableRow(
-                            ['🌅 Soir', 'Coucher de soleil sur les falaises']),
+                        _buildTableRow(['☀️ Midi', 'Lumière max sur l\'eau turquoise']),
+                        _buildTableRow(['🌅 Soir', 'Coucher de soleil sur les falaises']),
                       ],
                     ),
 
@@ -129,12 +123,9 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         children: [
-                          _buildGalleryImage(
-                              'assets/images/crique-ile-vierge-crozon.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/1000_F_571714788_cDQWVGIEK8a387ijfVo7Ii6TDqvbT1Ph.jpg'),
-                          _buildGalleryImage(
-                              'assets/images/presqu-ile-de-crozon-1-1200x675.jpeg'),
+                          _buildGalleryImage('assets/images/crique-ile-vierge-crozon.jpg'),
+                          _buildGalleryImage('assets/images/1000_F_571714788_cDQWVGIEK8a387ijfVo7Ii6TDqvbT1Ph.jpg'),
+                          _buildGalleryImage('assets/images/presqu-ile-de-crozon-1-1200x675.jpeg'),
                         ],
                       ),
                     ),
@@ -151,16 +142,11 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                       ),
                       child: Column(
                         children: [
-                          _buildTechRow(Icons.cloudy_snowing,
-                              "En Bretagne il pleut beaucoup ! Regarde bien la météo et les températures avant de partir."),
-                          _buildTechRow(Icons.block,
-                              "Accès à la plage interdit (Écosystème)"),
-                          _buildTechRow(Icons.waves,
-                              "Ne pas s'y baigner (Falaises instables)"),
-                          _buildTechRow(Icons.directions_walk,
-                              "Chaussures de marche recommandées"),
-                          _buildTechRow(Icons.camera_alt_outlined,
-                              "N'oubliez pas l'appareil photo !"),
+                          _buildTechRow(Icons.cloudy_snowing, "En Bretagne il pleut beaucoup ! Regarde bien la météo et les températures avant de partir."),
+                          _buildTechRow(Icons.block, "Accès à la plage interdit (Écosystème)"),
+                          _buildTechRow(Icons.waves, "Ne pas s'y baigner (Falaises instables)"),
+                          _buildTechRow(Icons.directions_walk, "Chaussures de marche recommandées"),
+                          _buildTechRow(Icons.camera_alt_outlined, "N'oubliez pas l'appareil photo !"),
                         ],
                       ),
                     ),
@@ -169,21 +155,13 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // --- MÉTHODES DE STYLE ---
-
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap,
-      {Color color = Colors.white}) =>
-      CircleAvatar(
-        backgroundColor: Colors.black45,
-        child:
-        IconButton(icon: Icon(icon, color: color, size: 18), onPressed: tap),
-      );
 
   TableRow _buildTableRow(List<String> cells, {bool isHeader = false}) {
     final style = GoogleFonts.montserrat(
@@ -197,8 +175,7 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            child: Text(cell,
-                style: style, textAlign: TextAlign.left, softWrap: true),
+            child: Text(cell, style: style, textAlign: TextAlign.left, softWrap: true),
           ),
         );
       }).toList(),

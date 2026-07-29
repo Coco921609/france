@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class IleDeLaViergePage extends StatefulWidget {
   const IleDeLaViergePage({super.key});
@@ -15,34 +14,36 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
 
   @override
   Widget build(BuildContext context) {
+    const Color turquoise = Color(0xFF40E0D0);
+
     return Scaffold(
       backgroundColor: const Color(0xFF0B0C0E),
-      body: Stack(
-        children: [
-          // 1. FIXED BACKGROUND IMAGE
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/presqu-ile-de-crozon-1-1200x675.jpeg',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. SCROLLABLE CONTENT PANEL
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.62,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 1. IMAGE DE HAUT (Intégrée au défilement global)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141619),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
+              child: Image.asset(
+                'assets/images/presqu-ile-de-crozon-1-1200x675.jpeg',
+                fit: BoxFit.cover,
               ),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+            ),
+
+            // 2. CONTENU (Remonté légèrement pour le design)
+            Transform.translate(
+              offset: const Offset(0, -50),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141619),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +53,7 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                       child: Text(
                         'Virgin Island 🌊',
                         style: GoogleFonts.cinzel(
-                          color: const Color(0xFF40E0D0),
+                          color: turquoise,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
@@ -62,7 +63,7 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                     Text(
                       "🏝️ A Caribbean vibe in Brittany",
                       style: GoogleFonts.montserrat(
-                        color: const Color(0xFF40E0D0).withOpacity(0.7),
+                        color: turquoise.withOpacity(0.7),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontStyle: FontStyle.italic,
@@ -170,22 +171,13 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // --- STYLE METHODS ---
-
-  // ignore: unused_element
-  Widget _buildCircleBtn(IconData icon, VoidCallback tap,
-      {Color color = Colors.white}) =>
-      CircleAvatar(
-        backgroundColor: Colors.black45,
-        child:
-        IconButton(icon: Icon(icon, color: color, size: 18), onPressed: tap),
-      );
 
   TableRow _buildTableRow(List<String> cells, {bool isHeader = false}) {
     final style = GoogleFonts.montserrat(
@@ -209,7 +201,7 @@ class _IleDeLaViergePageState extends State<IleDeLaViergePage> {
 
   Widget _buildSectionTitle(String title) {
     return Text(
-      title,
+      title.toUpperCase(),
       style: GoogleFonts.cinzel(
           color: const Color(0xFF40E0D0),
           fontSize: 16,
