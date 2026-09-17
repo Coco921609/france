@@ -32,8 +32,8 @@ android {
         applicationId = "com.france_secrete.france_secrete"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 48
-        versionName = "10.0.0"
+        versionCode = 52
+        versionName = "15.0.0"
     }
 
     signingConfigs {

@@ -1,0 +1,1054 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:ui';
+
+class MeandreQueuillePage extends StatefulWidget {
+  final String languageCode;
+  final Color themeColor;
+
+  const MeandreQueuillePage({
+    super.key,
+    required this.languageCode,
+    required this.themeColor,
+  });
+
+  @override
+  State<MeandreQueuillePage> createState() => _MeandreQueuillePageState();
+}
+
+class _MeandreQueuillePageState extends State<MeandreQueuillePage> {
+  late Color _currentColor;
+  late String _currentLanguageCode;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentColor = widget.themeColor;
+    _currentLanguageCode = widget.languageCode;
+  }
+
+  @override
+  void didUpdateWidget(covariant MeandreQueuillePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.themeColor != widget.themeColor) {
+      setState(() {
+        _currentColor = widget.themeColor;
+      });
+    }
+  }
+
+  void _toggleLanguage() {
+    setState(() {
+      if (_currentLanguageCode == 'fr') {
+        _currentLanguageCode = 'en';
+      } else if (_currentLanguageCode == 'en') {
+        _currentLanguageCode = 'ar';
+      } else {
+        _currentLanguageCode = 'fr';
+      }
+    });
+  }
+
+  List<Map<String, dynamic>> _generateDynamicMonths(String lang) {
+    final List<Map<String, Color>> baseSeasonData = [
+      {'top': Colors.grey, 'mid': Colors.grey, 'bot': Colors.grey},       // Janvier
+      {'top': Colors.grey, 'mid': Colors.grey, 'bot': Colors.orange},     // Février
+      {'top': Colors.orange, 'mid': Colors.green, 'bot': Colors.green},   // Mars
+      {'top': Colors.green, 'mid': Colors.green, 'bot': Colors.green},    // Avril (Printemps)
+      {'top': Colors.green, 'mid': Colors.orange, 'bot': Colors.orange},  // Mai
+      {'top': Colors.orange, 'mid': Colors.orange, 'bot': Colors.orange}, // Juin
+      {'top': Colors.orange, 'mid': Colors.orange, 'bot': Colors.orange}, // Juillet
+      {'top': Colors.orange, 'mid': Colors.orange, 'bot': Colors.orange}, // Août
+      {'top': Colors.green, 'mid': Colors.green, 'bot': Colors.orange},   // Septembre
+      {'top': Colors.orange, 'mid': Colors.red, 'bot': Colors.orange},    // Octobre (Automne / Couleurs max)
+      {'top': Colors.grey, 'mid': Colors.grey, 'bot': Colors.grey},       // Novembre
+      {'top': Colors.grey, 'mid': Colors.grey, 'bot': Colors.grey},       // Décembre
+    ];
+
+    final List<String> monthNamesAr = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+
+    final List<String> monthNamesEn = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    final List<String> monthNamesFr = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+
+    List<String> currentNames = monthNamesFr;
+    if (lang == 'ar') {
+      currentNames = monthNamesAr;
+    } else if (lang == 'en') {
+      currentNames = monthNamesEn;
+    }
+
+    return List.generate(12, (index) {
+      return {
+        'nom': currentNames[index],
+        'top': baseSeasonData[index]['top']!,
+        'mid': baseSeasonData[index]['mid']!,
+        'bot': baseSeasonData[index]['bot']!,
+      };
+    });
+  }
+
+  Map<String, dynamic> _getLocalizedData() {
+    if (_currentLanguageCode == 'ar') {
+      return {
+        'title': 'التواء كويي 🌿',
+        'pageTitle': 'التواء كويي : أمازون أوفرن',
+        'introTitle': '🇧🇷 لمحة من الأمازون في قلب أوفرن',
+        'introText': 'حلقة مثالية يشكلها نهر سيول وسط غابة كثيفة ووحشية. يمنحك هذا المشهد الاستثنائي إيحاءً بالوجود أمام ذراع من نهر الأمازون المفقود في الأدغال.',
+        'translationsTitle': 'معلومات إقليمية',
+        'translations': [
+          ['بوي دو دوم', 'إقليم فرنسي'],
+          ['سيوال', 'النهر المتعرج المحلي'],
+          ['كويل', 'قرية خلابة'],
+        ],
+        'saisonsTitle': '📅 أفضل المواسم',
+        'saisonHeader': 'الموسم',
+        'conseilsHeader': 'الأجواء والألوان',
+        'saisons': [
+          ['🍂 الخريف', 'ألوان الغابات الخلابة والذهبية'],
+          ['🌱 الربيع', 'خضرة منعشة وحيوية الغابة'],
+          ['☀️ الصيف', 'أخضر يانع وتأثير الأدغال الكثيفة'],
+        ],
+        'horairesTitle': '⏰ الأوقات المنصوح بها',
+        'momentHeader': 'الوقت',
+        'horaires': [
+          ['✨ الصباح', 'ضباب الصباح لإجواء ساحرة'],
+          ['☀️ منتصف النهار', 'ضوء ساطع على الحلقة النهرية'],
+          ['🌅 المساء', 'أضواء الغسق الساحرة'],
+        ],
+        'galerieTitle': '📸 لمحة عن المكان',
+        'infosTitle': '📋 الضروريات والمعلومات',
+        'infos': [
+          [Icons.map_outlined, "يقع في قرية كويي"],
+          [Icons.directions_walk, "منظر طبيعي سهل الوصول"],
+          [Icons.photo_camera, "صورة مميزة من ساحة الرؤية"],
+          [Icons.camera_alt, "إطلالة استثنائية على نهر سيول"],
+          [Icons.air, "هواء نقي وطبيعة برية"],
+          [Icons.flag_outlined, "أوفيرن-رون أوبال"],
+        ],
+        'bestMonthsTitle': 'مستويات الازدحام والفترات المثالية للزيارة',
+        'periodStart': 'أول الشهر',
+        'periodMid': 'منتصف الشهر',
+        'periodEnd': 'آخر الشهر',
+        'months': _generateDynamicMonths('ar'),
+        'legendeNote': '⚠️ تنبيه: يرجى التحقق من حالة الطقس وشروط الوصول لجولة آمنة وممتعة.',
+        'legendeVert': '🟢 أخضر : فترة مثالية ومريحة للزيارة',
+        'legendeOrange': '🟠 برتقالي : ازدحام معتدل، يفضل الحذر أو التبكير',
+        'legendeRouge': '🔴 أحمر : ذروة الألوان والزوار',
+        'legendeGris': '⚪ رمادي : موسم منخفض أو طقس بارد',
+        'mapsLabel': 'فتح في الخرائط',
+        'avertissementMeteo': '⚠️ تنبيه: يرجى التحقق من حالة الطقس وشروط الوصول لجولة آمنة وممتعة.',
+        'histoireLabel': 'قصة الموقع وتاريخه',
+        'saviezVousLabel': 'هل كنت تعلم؟',
+        'photoAstuceLabel': '📸 نصيحة لأفضل صورة',
+        'similarPlacesTitle': '🌍 أماكن مشابهة حول العالم',
+        'similarPlaces': [
+          ['هورسشو بند (أريزونا، الولايات المتحدة) 🇺🇸', 'حلقة مذهلة نحتها نهر كولورادو، تذكرنا بالتناسق الهندسي لهذا الالتواء.'],
+          ['التواءات نهر الدانوب (باساو، ألمانيا والنمسا) 🇩🇪/🇦🇹', 'التواءات نهرية خضراء خلابة تتسيدها الطبيعة والوديان الساحرة.'],
+          ['نهر الأامازون (البرازيل) 🇧🇷', 'نهر عظيم يتدفق في قلب غابة استوائية كثيفة وساحرة.']
+        ],
+        'meandreInfo': {
+          'titre': 'التواء كويي',
+          'titreAffichage': 'التواء كويي - نهر سيول',
+          'image': 'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
+          'typeAcces': 'دخول مجاني / إقليم بوي دي دوم',
+          'histoire': 'تم تشكيل التواء كويي، الذي يُطلق عليه غالبًا "جنة نهاية العالم"، على مدار آلاف السنين بواسطة المنعطفات المتعرجة لنهر سيول التي حفرت هضبة الجرانيت.',
+          'saviezVous': 'هل تعلم أن وجهة النظر هذه توفر حلقة مثالية تقريبًا بزاوية 180 درجة حول شبه جزيرة كويي المشجرة.',
+          'photoAstuce': 'يُفضل الزيارة في الصباح الباكر لالتقاط الضباب المتصاعد فوق النهر والذي يلف الوادي بالغموض والأجواء الساحرة.',
+          'photosVerticales': [
+            'assets/images/4f26bf43d724d27dd2d2277f502c8505.jpg',
+            'assets/images/maxresdefault.jpg',
+            'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
+          ]
+        }
+      };
+    } else if (_currentLanguageCode == 'en') {
+      return {
+        'title': 'Queuille Meander 🌿',
+        'pageTitle': 'Queuille Meander : The Auvergne Amazon',
+        'introTitle': '🇧🇷 A touch of Amazonia in Auvergne',
+        'introText': "A perfect loop formed by the Sioule river amidst a dense and wild forest. This exceptional panorama gives the illusion of facing an arm of the Amazon River lost in the jungle.",
+        'translationsTitle': 'Local Information',
+        'translations': [
+          ['Puy-de-Dôme', 'French department'],
+          ['Sioule', 'Winding local river'],
+          ['Queue', 'Picturesque village'],
+        ],
+        'saisonsTitle': '📅 Best Seasons',
+        'saisonHeader': 'Season',
+        'conseilsHeader': 'Ambience & Colors',
+        'saisons': [
+          ['🍂 Autumn', 'Fire colors and golden leaves'],
+          ['🌱 Spring', 'Vibrant greenery and freshness'],
+          ['☀️ Summer', 'Intense green and deep jungle effect'],
+        ],
+        'horairesTitle': '⏰ Recommended Times',
+        'momentHeader': 'Time',
+        'horaires': [
+          ['✨ Morning', 'Morning mist for a mystical ambiance'],
+          ['☀️ Noon', 'Bright sunlight over the loop'],
+          ['🌅 Evening', 'Magical twilight glow'],
+        ],
+        'galerieTitle': '📸 Place Overview',
+        'infosTitle': '📋 Essentials & Info',
+        'infos': [
+          [Icons.map_outlined, "Located in Queuille village"],
+          [Icons.directions_walk, "Easily accessible viewpoint"],
+          [Icons.photo_camera, "Iconic photo from the square"],
+          [Icons.camera_alt, "Exceptional panorama of the Sioule"],
+          [Icons.air, "Pure air and wild nature"],
+          [Icons.flag_outlined, "Auvergne-Rhône-Alpes"],
+        ],
+        'bestMonthsTitle': 'Crowd Levels & Best Times to Visit',
+        'periodStart': 'Early Month',
+        'periodMid': 'Mid Month',
+        'periodEnd': 'Late Month',
+        'months': _generateDynamicMonths('en'),
+        'legendeNote': '⚠️ Note: Please check weather conditions and access rules for a safe trip.',
+        'legendeVert': '🟢 Green: Ideal and quiet period to visit',
+        'legendeOrange': '🟠 Orange: Moderate crowds, caution or early arrival advised',
+        'legendeRouge': '🔴 Red: Peak colors and visitors',
+        'legendeGris': '⚪ Grey: Low season or cool weather',
+        'mapsLabel': 'Open in Maps',
+        'avertissementMeteo': '⚠️ Note: Please check weather conditions and access rules for a safe trip.',
+        'histoireLabel': 'Detailed History & Background',
+        'saviezVousLabel': 'Did you know ?',
+        'photoAstuceLabel': '📸 Photo Tip',
+        'similarPlacesTitle': '🌍 Similar Places Around the World',
+        'similarPlaces': [
+          ['Horseshoe Bend (Arizona, United States) 🇺🇸', 'A spectacular loop carved by the Colorado River, reminiscent of this meander’s geometric perfection.'],
+          ['Danube Meanders (Passau, Germany & Austria) 🇩🇪/🇦🇹', 'Stunning forested river loops winding through green valleys and cliffs.'],
+          ['The Amazon River (Brazil) 🇧🇷', 'A mighty river winding through the heart of a dense and lush jungle.']
+        ],
+        'meandreInfo': {
+          'titre': 'Queuille Meander',
+          'titreAffichage': 'Queuille Meander - The Sioule',
+          'image': 'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
+          'typeAcces': 'Free access / Puy-de-Dôme',
+          'histoire': 'The Queuille meander, often nicknamed the "paradise at the end of the world", was shaped over millennia by the winding curves of the Sioule river carving into the granite plateau.',
+          'saviezVous': 'Did you know that this viewpoint offers a nearly perfect 180-degree loop around the wooded peninsula of Queuille.',
+          'photoAstuce': 'Opt for an early morning visit to capture the mist rising above the river, enveloping the valley in mystery.',
+          'photosVerticales': [
+            'assets/images/4f26bf43d724d27dd2d2277f502c8505.jpg',
+            'assets/images/maxresdefault.jpg',
+            'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
+          ]
+        }
+      };
+    } else {
+      return {
+        'title': 'Méandre de Queuille 🌿',
+        'pageTitle': 'Méandre de Queuille : L’Amazonie auvergnate',
+        'introTitle': '🇧🇷 Un air d\'Amazonie en Auvergne',
+        'introText': "Une boucle parfaite formée par la rivière Sioule au milieu d'une forêt dense et sauvage. Ce panorama exceptionnel donne l'illusion d'être face à un bras du fleuve Amazone perdu en pleine jungle.",
+        'translationsTitle': 'Informations locales',
+        'translations': [
+          ['Puy-de-Dôme', 'Département français'],
+          ['Sioule', 'Rivière sinueuse locale'],
+          ['Queuille', 'Village pittoresque'],
+        ],
+        'saisonsTitle': '📅 Meilleures saisons',
+        'saisonHeader': 'Saison',
+        'conseilsHeader': 'Ambiance & Couleurs',
+        'saisons': [
+          ['🍂 Automne', 'Couleurs de feu et feuilles dorées'],
+          ['🌱 Printemps', 'Verdure éclatante et fraîcheur'],
+          ['☀️ Été', 'Effet jungle et vert intense'],
+        ],
+        'horairesTitle': '⏰ Horaires conseillés',
+        'momentHeader': 'Moment',
+        'horaires': [
+          ['✨ Matinée', 'Brume matinale pour une ambiance mystique'],
+          ['☀️ Midi', 'Lumière éclatante sur la boucle'],
+          ['🌅 Soir', 'Lumières crépusculaires magiques'],
+        ],
+        'galerieTitle': '📸 Aperçu du lieu',
+        'infosTitle': '📋 Indispensables & Infos',
+        'infos': [
+          [Icons.map_outlined, "Situé dans le village de Queuille"],
+          [Icons.directions_walk, "Belvédère accessible facilement"],
+          [Icons.photo_camera, "Photo iconique depuis le parvis"],
+          [Icons.camera_alt, "Panorama exceptionnel sur la Sioule"],
+          [Icons.air, "Air pur et nature sauvage"],
+          [Icons.flag_outlined, "Auvergne-Rhône-Alpes"],
+        ],
+        'bestMonthsTitle': 'Calendrier d’affluence et de saisonnalité',
+        'periodStart': 'Début de mois',
+        'periodMid': 'Milieu de mois',
+        'periodEnd': 'Fin de mois',
+        'months': _generateDynamicMonths('fr'),
+        'legendeNote': '⚠️ Attention : Vérifiez l’affluence réelle et la météo pour votre sécurité.',
+        'legendeVert': '🟢 Vert : Période idéale (tranquille, météo agréable)',
+        'legendeOrange': '🟠 Affluence modérée (période de transition)',
+        'legendeRouge': '🔴 Forte affluence / Couleurs maximales',
+        'legendeGris': '⚪ Basse saison / Météo fraîche',
+        'mapsLabel': 'Ouvrir dans Maps',
+        'avertissementMeteo': '⚠️ Attention : Vérifiez la météo ainsi que les conditions d\'accès avant de visiter le site.',
+        'histoireLabel': 'Histoire et récit détaillé',
+        'saviezVousLabel': 'Saviez-vous ?',
+        'photoAstuceLabel': '📸 Astuce photo',
+        'similarPlacesTitle': '🌍 Endroits similaires au Méandre de Queuille dans le monde',
+        'similarPlaces': [
+          ['Horseshoe Bend (Arizona, États-Unis) 🇺🇸', 'Une boucle spectaculaire creusée par le fleuve Colorado, rappelant la perfection géométrique de ce méandre.'],
+          ['Les méandres du Danube (Passau, Allemagne & Autriche) 🇩🇪/🇦🇹', 'De superbes méandres boisés serpentant entre falaises et vallées verdoyantes.'],
+          ['Le fleuve Amazone (Brésil) 🇧🇷', 'Un fleuve puissant serpentant au cœur d’une jungle dense et luxuriante.']
+        ],
+        'meandreInfo': {
+          'titre': 'Méandre de Queuille',
+          'titreAffichage': 'Méandre de Queuille - La Sioule',
+          'image': 'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
+          'typeAcces': 'Accès libre / Puy-de-Dôme',
+          'histoire': "Le méandre de Queuille, souvent surnommé le « paradis du bout du monde », a été façonné au fil des millénaires par les méandres sinueux de la rivière Sioule creusant le plateau granitique.",
+          'saviezVous': "Saviez-vous que ce point de vue offre une boucle presque parfaite à 180 degrés autour de la presqu'île boisée de Queuille.",
+          'photoAstuce': "Privilégiez une venue matinale pour capturer la brume s'élevant au-dessus de la rivière et envelopper la vallée de mystère.",
+          'photosVerticales': [
+            'assets/images/4f26bf43d724d27dd2d2277f502c8505.jpg',
+            'assets/images/maxresdefault.jpg',
+            'assets/images/4e582873ad7ec56c2ad9a98a3cca8ed8.jpg',
+          ]
+        }
+      };
+    }
+  }
+
+  Future<void> _openMap(String query) async {
+    final encodedQuery = Uri.encodeComponent(query);
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$encodedQuery');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Widget _buildGalleryImage(String imagePath) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      width: double.infinity,
+      height: 380,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: const Color(0xFF1E2029),
+            child: const Center(
+              child: Icon(Icons.image_not_supported, color: Colors.white54, size: 40),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isRtl = _currentLanguageCode == 'ar';
+    final data = _getLocalizedData();
+    final months = data['months'] as List;
+    final meandreInfo = data['meandreInfo'] as Map<String, dynamic>;
+    final translationsList = data['translations'] as List;
+
+    return Directionality(
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0B0C10),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // EN-TÊTE OPTIMISÉ (Titre réduit à 13 pour tenir sur 2 lignes sans coupure précoce)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            IconButton(
+                              constraints: const BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                              icon: Icon(
+                                isRtl ? Icons.arrow_forward_ios : Icons.arrow_back_ios_new,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                data['pageTitle'],
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: _toggleLanguage,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: _currentColor.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: _currentColor.withOpacity(0.4)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.language, color: _currentColor, size: 14),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    _currentLanguageCode.toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // IMAGE PRINCIPALE
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset(
+                      meandreInfo['image'],
+                      height: 220,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 220,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E2029),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white10),
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.image_not_supported, color: Colors.white54, size: 40),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // AVERTISSEMENT MÉTÉO / INFO
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
+                    ),
+                    child: Text(
+                      data['avertissementMeteo'],
+                      style: const TextStyle(
+                        color: Colors.orangeAccent,
+                        fontSize: 12,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // 1. TITRE & ACCÈS
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: _currentColor.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          meandreInfo['titreAffichage'],
+                          style: GoogleFonts.cinzel(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _currentColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            meandreInfo['typeAcces'],
+                            style: TextStyle(
+                              color: _currentColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 1. BIS - TRADUCTIONS EN FLÈCHE
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['translationsTitle'],
+                          style: TextStyle(
+                            color: _currentColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ...translationsList.map((tr) => _buildTranslationLine(tr[0], tr[1], _currentColor)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 2. INTRODUCTION & RÉALITÉ DU SITE
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['introTitle'],
+                          style: GoogleFonts.montserrat(
+                            color: _currentColor.withOpacity(0.9),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          data['introText'],
+                          style: GoogleFonts.montserrat(
+                            color: const Color(0xFFB0B4C3),
+                            fontSize: 13,
+                            height: 1.6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 3. HISTOIRE DÉTAILLÉE
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['histoireLabel'],
+                          style: TextStyle(
+                            color: _currentColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          meandreInfo['histoire'],
+                          style: const TextStyle(
+                            color: Color(0xFFB0B4C3),
+                            fontSize: 13,
+                            height: 1.6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // BOUTON MAPS
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _currentColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () => _openMap(meandreInfo['titre']),
+                      icon: const Icon(Icons.map, size: 18),
+                      label: Text(
+                        data['mapsLabel'],
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 4. SAVIEZ-VOUS ?
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.lightbulb, color: Colors.amber, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                data['saviezVousLabel'],
+                                style: const TextStyle(
+                                  color: Colors.amber,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          meandreInfo['saviezVous'],
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 5. ASTUCE PHOTO
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.camera_alt, color: Colors.blueAccent, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                data['photoAstuceLabel'],
+                                style: const TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          meandreInfo['photoAstuce'],
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 5. BIS - ENDROITS SIMILAIRES INTERNATIONAUX
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.place, color: Colors.tealAccent, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                data['similarPlacesTitle'],
+                                style: const TextStyle(
+                                  color: Colors.tealAccent,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        ...((data['similarPlaces'] as List).map((place) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                place[0],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                place[1],
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ))),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 6. SAISONS RECOMMANDÉES (TABLEAU)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['saisonsTitle'],
+                          style: GoogleFonts.cinzel(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Table(
+                          border: TableBorder.all(color: Colors.white10, width: 1),
+                          columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(2)},
+                          children: [
+                            _buildTableRow([data['saisonHeader'], data['conseilsHeader']], isHeader: true, hColor: _currentColor),
+                            ...((data['saisons'] as List).map((s) => _buildTableRow([s[0], s[1]]))),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 7. HORAIRES CONSEILLÉS (TABLEAU)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['horairesTitle'],
+                          style: GoogleFonts.cinzel(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Table(
+                          border: TableBorder.all(color: Colors.white10, width: 1),
+                          columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(2)},
+                          children: [
+                            _buildTableRow([data['momentHeader'], data['conseilsHeader']], isHeader: true, hColor: _currentColor),
+                            ...((data['horaires'] as List).map((h) => _buildTableRow([h[0], h[1]]))),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 8. CALENDRIER D'AFFLUENCE ET DE SAISONNALITÉ
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['bestMonthsTitle'],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...months.map((m) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0B0C10),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 80,
+                                  child: Text(
+                                    m['nom'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              data['periodStart'],
+                                              style: const TextStyle(color: Colors.white54, fontSize: 9.5, height: 1.2),
+                                              textAlign: TextAlign.center,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.visible,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Container(width: 16, height: 16, decoration: BoxDecoration(color: m['top'], shape: BoxShape.circle)),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              data['periodMid'],
+                                              style: const TextStyle(color: Colors.white54, fontSize: 9.5, height: 1.2),
+                                              textAlign: TextAlign.center,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.visible,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Container(width: 16, height: 16, decoration: BoxDecoration(color: m['mid'], shape: BoxShape.circle)),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              data['periodEnd'],
+                                              style: const TextStyle(color: Colors.white54, fontSize: 9.5, height: 1.2),
+                                              textAlign: TextAlign.center,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.visible,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Container(width: 16, height: 16, decoration: BoxDecoration(color: m['bot'], shape: BoxShape.circle)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 10),
+                        Text(data['legendeNote'], style: const TextStyle(color: Colors.amberAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text(data['legendeVert'], style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                        const SizedBox(height: 4),
+                        Text(data['legendeOrange'], style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                        const SizedBox(height: 4),
+                        Text(data['legendeRouge'], style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                        const SizedBox(height: 4),
+                        Text(data['legendeGris'], style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 9. INFOS PRATIQUES
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161821),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data['infosTitle'],
+                          style: GoogleFonts.cinzel(
+                            color: _currentColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...((data['infos'] as List).map((info) => _buildTechRow(info[0], info[1], _currentColor))),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 10. GALERIE PHOTOS VERTICALES
+                  Column(
+                    children: [
+                      for (var path in meandreInfo['photosVerticales'] as List)
+                        _buildGalleryImage(path),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- MÉTHODES D'AIDE ---
+
+  Widget _buildTranslationLine(String leftVal, String rightVal, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(leftVal, style: GoogleFonts.montserrat(color: color, fontWeight: FontWeight.bold, fontSize: 15)),
+          const SizedBox(width: 12),
+          const Icon(Icons.arrow_forward, color: Colors.white24, size: 16),
+          const SizedBox(width: 12),
+          Expanded(child: Text(rightVal, style: GoogleFonts.montserrat(color: Colors.white70, fontSize: 15))),
+        ],
+      ),
+    );
+  }
+
+  TableRow _buildTableRow(List<String> cells, {bool isHeader = false, Color? hColor}) {
+    return TableRow(
+      children: cells.map((cell) => Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text(cell, style: GoogleFonts.montserrat(
+          color: isHeader ? hColor : Colors.white70,
+          fontSize: 12,
+          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+        )),
+      )).toList(),
+    );
+  }
+
+  Widget _buildTechRow(IconData icon, String label, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: color.withOpacity(0.7), size: 20),
+          const SizedBox(width: 15),
+          Expanded(child: Text(label, style: GoogleFonts.montserrat(color: Colors.white, fontSize: 13))),
+        ],
+      ),
+    );
+  }
+}
