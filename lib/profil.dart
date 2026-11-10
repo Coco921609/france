@@ -907,16 +907,21 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
+  final FocusNode _nameFocus = FocusNode();
 
   String _selectedGenre = 'Homme';
+  bool _isMale = true;
   Color _selectedThemeColor = const Color(0xFF6366F1);
+  Color _accent = const Color(0xFF6366F1); // couleur animée (transition douce)
   late String _selectedAvatar;
   late String _currentLang;
 
   bool _hasNameError = false;
   late AnimationController _orbitController;
+  late AnimationController _entranceController;
+  late AnimationController _pulseController;
 
   final List<Color> _themeColors = [
     const Color(0xFF6366F1),
@@ -995,22 +1000,47 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       vsync: this,
       duration: const Duration(seconds: 12),
     )..repeat();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..forward();
+    _nameFocus.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _nameFocus.dispose();
     _orbitController.dispose();
+    _entranceController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
+  String get _errorText {
+    const Map<String, String> msgs = {
+      'fr': 'Veuillez entrer votre nom',
+      'en': 'Please enter your name',
+      'ar': 'يرجى إدخال اسمك',
+    };
+    return msgs[_currentLang] ?? msgs['fr']!;
+  }
+
   void _validateAndSave() async {
+    HapticFeedback.mediumImpact();
     final bool nameEmpty = _nameController.text.trim().isEmpty;
 
     if (nameEmpty) {
       setState(() {
         _hasNameError = true;
       });
+      _nameFocus.requestFocus();
       return;
     }
 
@@ -1038,375 +1068,624 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
+  // Apparition en cascade
+  Widget _stagger(double start, double end, Widget child) {
+    return AnimatedBuilder(
+      animation: _entranceController,
+      child: child,
+      builder: (context, ch) {
+        final double p = Curves.easeOutCubic.transform(
+          ((_entranceController.value - start) / (end - start)).clamp(0.0, 1.0).toDouble(),
+        );
+        return Opacity(
+          opacity: p,
+          child: Transform.translate(
+            offset: Offset(0, (1 - p) * 28),
+            child: ch,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = _localizedText[_currentLang] ?? _localizedText['fr']!;
     final isRtl = _currentLang == 'ar';
-    final currentAvatars = (_selectedGenre == 'Homme' || _selectedGenre == 'Man' || _selectedGenre == 'رجل')
-        ? _avatarsHommes
-        : _avatarsFemmes;
+    final currentAvatars = _isMale ? _avatarsHommes : _avatarsFemmes;
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         backgroundColor: BubbleTheme.background,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        t['title']!,
-                        style: const TextStyle(
-                          color: BubbleTheme.textLight,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        t['subtitle']!,
-                        style: const TextStyle(
-                          color: BubbleTheme.textMuted,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 28),
+        body: TweenAnimationBuilder<Color?>(
+          tween: ColorTween(end: _selectedThemeColor),
+          duration: const Duration(milliseconds: 450),
+          builder: (context, animatedColor, _) {
+            _accent = animatedColor ?? _selectedThemeColor;
+            return SafeArea(
+              child: Stack(
+                children: [
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => FocusScope.of(context).unfocus(),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(22, 18, 22, 130),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _stagger(0.0, 0.45, _buildHeader(t)),
+                          const SizedBox(height: 26),
 
-                // 1. NOM ET PRÉNOM
-                Text(
-                  t['nameLabel']!,
-                  style: const TextStyle(color: BubbleTheme.textLight, fontSize: 13, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    color: BubbleTheme.cardDark,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _hasNameError ? BubbleTheme.coral : BubbleTheme.cardBorder,
-                      width: _hasNameError ? 2 : 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _nameController,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
-                    onChanged: (val) {
-                      if (_hasNameError && val.trim().isNotEmpty) {
-                        setState(() {
-                          _hasNameError = false;
-                        });
-                      }
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.person_outline_rounded, color: BubbleTheme.textMuted, size: 20),
-                      hintText: t['nameHint'],
-                      hintStyle: TextStyle(
-                        color: _hasNameError ? BubbleTheme.coral.withOpacity(0.8) : BubbleTheme.textMuted.withOpacity(0.6),
-                        fontSize: 14,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 22),
-
-                // 2. GENRE
-                Text(
-                  t['genreLabel']!,
-                  style: const TextStyle(color: BubbleTheme.textLight, fontSize: 13, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildGenreButton(
-                        label: t['genreMan']!,
-                        icon: Icons.male_rounded,
-                        isSelected: _selectedGenre == 'Homme' || _selectedGenre == 'Man' || _selectedGenre == 'رجل',
-                        onTap: () {
-                          setState(() {
-                            _selectedGenre = t['genreMan']!;
-                            _selectedAvatar = _avatarsHommes[0];
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildGenreButton(
-                        label: t['genreWoman']!,
-                        icon: Icons.female_rounded,
-                        isSelected: _selectedGenre == 'Femme' || _selectedGenre == 'Woman' || _selectedGenre == 'امرأة',
-                        onTap: () {
-                          setState(() {
-                            _selectedGenre = t['genreWoman']!;
-                            _selectedAvatar = _avatarsFemmes[0];
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 22),
-
-                // 3. COULEUR DU THÈME
-                Text(
-                  t['themeLabel']!,
-                  style: const TextStyle(color: BubbleTheme.textLight, fontSize: 13, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: _themeColors.map((color) {
-                    final isSelected = _selectedThemeColor == color;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedThemeColor = color;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected ? Colors.white : Colors.transparent,
-                            width: 2.5,
+                          // 1. NOM ET PRÉNOM
+                          _stagger(
+                            0.08,
+                            0.55,
+                            _sectionCard(
+                              icon: Icons.badge_rounded,
+                              title: t['nameLabel']!,
+                              child: _buildNameField(t),
+                            ),
                           ),
-                          boxShadow: isSelected
-                              ? [
-                            BoxShadow(
-                              color: color.withOpacity(0.6),
-                              blurRadius: 14,
-                              spreadRadius: 2,
-                            ),
-                          ]
-                              : [],
-                        ),
-                        child: isSelected ? const Icon(Icons.check_rounded, color: Colors.white, size: 22) : null,
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
+                          const SizedBox(height: 16),
 
-                // 4. AVATAR (AVEC ANIMATION STYLE VIDÉO ORBITALE)
-                Text(
-                  t['avatarLabel']!,
-                  style: const TextStyle(color: BubbleTheme.textLight, fontSize: 13, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 14),
-                Center(
-                  child: SizedBox(
-                    width: 210,
-                    height: 210,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Cercle central (avatar sélectionné)
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                _selectedThemeColor,
-                                _selectedThemeColor.withOpacity(0.3),
-                                Colors.transparent,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _selectedThemeColor.withOpacity(0.45),
-                                blurRadius: 20,
-                                spreadRadius: 1,
+                          // 2. GENRE
+                          _stagger(
+                            0.18,
+                            0.65,
+                            _sectionCard(
+                              icon: Icons.wc_rounded,
+                              title: t['genreLabel']!,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildGenreButton(
+                                      label: t['genreMan']!,
+                                      icon: Icons.male_rounded,
+                                      isSelected: _isMale,
+                                      onTap: () {
+                                        HapticFeedback.selectionClick();
+                                        setState(() {
+                                          _isMale = true;
+                                          _selectedGenre = t['genreMan']!;
+                                          _selectedAvatar = _avatarsHommes[0];
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildGenreButton(
+                                      label: t['genreWoman']!,
+                                      icon: Icons.female_rounded,
+                                      isSelected: !_isMale,
+                                      onTap: () {
+                                        HapticFeedback.selectionClick();
+                                        setState(() {
+                                          _isMale = false;
+                                          _selectedGenre = t['genreWoman']!;
+                                          _selectedAvatar = _avatarsFemmes[0];
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 3. COULEUR DU THÈME
+                          _stagger(
+                            0.28,
+                            0.75,
+                            _sectionCard(
+                              icon: Icons.palette_rounded,
+                              title: t['themeLabel']!,
+                              child: Row(
+                                children: _themeColors.map((color) {
+                                  return Flexible(
+                                    child: Center(child: _buildColorDot(color)),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 4. AVATAR (orbite animée + grille)
+                          _stagger(
+                            0.38,
+                            0.85,
+                            _sectionCard(
+                              icon: Icons.face_retouching_natural_rounded,
+                              title: t['avatarLabel']!,
+                              child: Column(
+                                children: [
+                                  Center(
+                                    child: SizedBox(
+                                      width: 210,
+                                      height: 210,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            width: 150,
+                                            height: 150,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: RadialGradient(
+                                                colors: [
+                                                  _accent.withOpacity(0.22),
+                                                  _accent.withOpacity(0.0),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          AnimatedContainer(
+                                            duration: const Duration(milliseconds: 250),
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  _accent,
+                                                  BubbleTheme.primaryGradientEnd,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: _accent.withOpacity(0.5),
+                                                  blurRadius: 26,
+                                                  spreadRadius: 1,
+                                                ),
+                                              ],
+                                            ),
+                                            child: Container(
+                                              width: 88,
+                                              height: 88,
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: BubbleTheme.cardDark,
+                                              ),
+                                              child: Center(
+                                                child: AnimatedSwitcher(
+                                                  duration: const Duration(milliseconds: 300),
+                                                  switchInCurve: Curves.easeOutBack,
+                                                  transitionBuilder: (child, anim) =>
+                                                      ScaleTransition(scale: anim, child: child),
+                                                  child: Text(
+                                                    _selectedAvatar,
+                                                    key: ValueKey<String>(_selectedAvatar),
+                                                    style: const TextStyle(fontSize: 46),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          AnimatedBuilder(
+                                            animation: _orbitController,
+                                            builder: (context, child) {
+                                              return CustomPaint(
+                                                size: const Size(210, 210),
+                                                painter: OrbitPainter(
+                                                  progress: _orbitController.value,
+                                                  avatars: currentAvatars,
+                                                  selectedAvatar: _selectedAvatar,
+                                                  themeColor: _accent,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  GridView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: currentAvatars.length,
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 6,
+                                      crossAxisSpacing: 8,
+                                      mainAxisSpacing: 10,
+                                      childAspectRatio: 1.0,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final avatar = currentAvatars[index];
+                                      final isSelected = avatar == _selectedAvatar;
+                                      return GestureDetector(
+                                        onTap: () {
+                                          HapticFeedback.selectionClick();
+                                          setState(() {
+                                            _selectedAvatar = avatar;
+                                          });
+                                        },
+                                        child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 220),
+                                          curve: Curves.easeOutCubic,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(16),
+                                            gradient: isSelected
+                                                ? LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              colors: [
+                                                _accent.withOpacity(0.38),
+                                                _accent.withOpacity(0.12),
+                                              ],
+                                            )
+                                                : null,
+                                            color: isSelected ? null : const Color(0xFF0F131D),
+                                            border: Border.all(
+                                              color: isSelected ? _accent : BubbleTheme.cardBorder,
+                                              width: isSelected ? 1.8 : 1,
+                                            ),
+                                            boxShadow: isSelected
+                                                ? [
+                                              BoxShadow(
+                                                color: _accent.withOpacity(0.4),
+                                                blurRadius: 12,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ]
+                                                : [],
+                                          ),
+                                          child: Center(
+                                            child: AnimatedScale(
+                                              scale: isSelected ? 1.18 : 1.0,
+                                              duration: const Duration(milliseconds: 220),
+                                              curve: Curves.easeOutBack,
+                                              child: Text(
+                                                avatar,
+                                                style: const TextStyle(fontSize: 20),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 5. LANGUE DE L'APPLICATION
+                          _stagger(
+                            0.48,
+                            0.95,
+                            _sectionCard(
+                              icon: Icons.language_rounded,
+                              title: t['langLabel']!,
+                              child: Row(
+                                children: [
+                                  Expanded(child: _buildLangButton('fr', '🇫🇷', t['langFr']!)),
+                                  const SizedBox(width: 10),
+                                  Expanded(child: _buildLangButton('en', '🇬🇧', t['langEn']!)),
+                                  const SizedBox(width: 10),
+                                  Expanded(child: _buildLangButton('ar', '🇸🇦', t['langAr']!)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // ---- Barre d'action flottante ----
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 130,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              BubbleTheme.background.withOpacity(0.0),
+                              BubbleTheme.background.withOpacity(0.92),
+                              BubbleTheme.background,
                             ],
-                          ),
-                          child: Container(
-                            width: 86,
-                            height: 86,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: BubbleTheme.cardDark,
-                              border: Border.all(color: Colors.white.withOpacity(0.15), width: 1.5),
-                            ),
-                            child: Center(
-                              child: Text(
-                                _selectedAvatar,
-                                style: const TextStyle(fontSize: 46),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Animation orbitale des emojis autour du centre
-                        AnimatedBuilder(
-                          animation: _orbitController,
-                          builder: (context, child) {
-                            return CustomPaint(
-                              size: const Size(210, 210),
-                              painter: OrbitPainter(
-                                progress: _orbitController.value,
-                                avatars: currentAvatars,
-                                selectedAvatar: _selectedAvatar,
-                                themeColor: _selectedThemeColor,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: currentAvatars.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 6,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1.0,
-                  ),
-                  itemBuilder: (context, index) {
-                    final avatar = currentAvatars[index];
-                    final isSelected = avatar == _selectedAvatar;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedAvatar = avatar;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOutCubic,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? _selectedThemeColor.withOpacity(0.2)
-                              : BubbleTheme.cardDark,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? _selectedThemeColor : BubbleTheme.cardBorder,
-                            width: isSelected ? 2 : 1,
-                          ),
-                          boxShadow: isSelected
-                              ? [
-                            BoxShadow(
-                              color: _selectedThemeColor.withOpacity(0.4),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]
-                              : [],
-                        ),
-                        child: Center(
-                          child: Text(
-                            avatar,
-                            style: TextStyle(
-                              fontSize: isSelected ? 23 : 19,
-                            ),
+                            stops: const [0.0, 0.5, 1.0],
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-
-                // 5. LANGUE DE L'APPLICATION
-                Text(
-                  t['langLabel']!,
-                  style: const TextStyle(color: BubbleTheme.textLight, fontSize: 13, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildLangButton('fr', t['langFr']!),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildLangButton('en', t['langEn']!),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildLangButton('ar', t['langAr']!),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // BOUTON VALIDER
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: double.infinity,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: _selectedThemeColor,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _selectedThemeColor.withOpacity(0.4),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                    ),
-                    onPressed: _validateAndSave,
-                    child: Text(
-                      t['button']!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.3,
-                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
+                  Positioned(
+                    left: 22,
+                    right: 22,
+                    bottom: 16,
+                    child: _stagger(0.5, 1.0, _buildCta(t, isRtl)),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
+  // ---------------------------------------------------------------------
+  //  EN-TÊTE
+  // ---------------------------------------------------------------------
+  Widget _buildHeader(Map<String, String> t) {
+    return Center(
+      child: Column(
+        children: [
+          SizedBox(
+            width: 92,
+            height: 92,
+            child: AnimatedBuilder(
+              animation: _orbitController,
+              builder: (context, _) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomPaint(
+                      size: const Size(92, 92),
+                      painter: _ProfileBadgePainter(
+                        angle: _orbitController.value * 2 * math.pi,
+                        color: _accent,
+                      ),
+                    ),
+                    Container(
+                      width: 54,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [_accent, BubbleTheme.primaryGradientEnd],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _accent.withOpacity(0.55),
+                            blurRadius: 28,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          ShaderMask(
+            blendMode: BlendMode.srcIn,
+            shaderCallback: (rect) => LinearGradient(
+              colors: [
+                Colors.white,
+                Colors.white.withOpacity(0.9),
+                _accent.withOpacity(0.95),
+              ],
+              stops: const [0.0, 0.6, 1.0],
+            ).createShader(rect),
+            child: Text(
+              t['title']!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
+                letterSpacing: _currentLang == 'ar' ? 0 : -0.3,
+                shadows: [
+                  Shadow(color: _accent.withOpacity(0.45), blurRadius: 24),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            t['subtitle']!,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: BubbleTheme.textMuted,
+              fontSize: 13.5,
+            ),
+          ),
+          const SizedBox(height: 14),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
+            width: 64,
+            height: 4,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              gradient: LinearGradient(
+                colors: [_accent, BubbleTheme.primaryGradientEnd],
+              ),
+              boxShadow: [
+                BoxShadow(color: _accent.withOpacity(0.6), blurRadius: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  //  CARTE DE SECTION
+  // ---------------------------------------------------------------------
+  Widget _sectionCard({
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1A2030), Color(0xFF121722)],
+        ),
+        border: Border.all(color: Colors.white.withOpacity(0.07), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.32),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      _accent.withOpacity(0.45),
+                      _accent.withOpacity(0.12),
+                    ],
+                  ),
+                  border: Border.all(color: _accent.withOpacity(0.45)),
+                ),
+                child: Icon(icon, color: Colors.white, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: BubbleTheme.textLight,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  //  CHAMP NOM
+  // ---------------------------------------------------------------------
+  Widget _buildNameField(Map<String, String> t) {
+    final bool focused = _nameFocus.hasFocus;
+    final bool filled = _nameController.text.trim().isNotEmpty;
+    final Color border = _hasNameError
+        ? BubbleTheme.coral
+        : (focused ? _accent : BubbleTheme.cardBorder);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F131D),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: border,
+              width: (focused || _hasNameError) ? 1.8 : 1.2,
+            ),
+            boxShadow: (focused || _hasNameError)
+                ? [BoxShadow(color: border.withOpacity(0.3), blurRadius: 18)]
+                : [],
+          ),
+          child: TextField(
+            controller: _nameController,
+            focusNode: _nameFocus,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.done,
+            cursorColor: _accent,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15.5,
+              fontWeight: FontWeight.w600,
+            ),
+            onChanged: (val) {
+              setState(() {
+                if (_hasNameError && val.trim().isNotEmpty) {
+                  _hasNameError = false;
+                }
+              });
+            },
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.person_outline_rounded,
+                color: focused ? _accent : BubbleTheme.textMuted,
+                size: 21,
+              ),
+              suffixIcon: filled
+                  ? Icon(Icons.check_circle_rounded, color: _accent, size: 20)
+                  : null,
+              hintText: t['nameHint'],
+              hintStyle: TextStyle(
+                color: _hasNameError
+                    ? BubbleTheme.coral.withOpacity(0.8)
+                    : BubbleTheme.textMuted.withOpacity(0.6),
+                fontSize: 14,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          child: _hasNameError
+              ? Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline_rounded, color: BubbleTheme.coral, size: 15),
+                const SizedBox(width: 6),
+                Text(
+                  _errorText,
+                  style: const TextStyle(
+                    color: BubbleTheme.coral,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  //  GENRE
+  // ---------------------------------------------------------------------
   Widget _buildGenreButton({
     required String label,
     required IconData icon,
@@ -1416,39 +1695,69 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? _selectedThemeColor.withOpacity(0.18) : BubbleTheme.cardDark,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
+          gradient: isSelected
+              ? LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              _accent.withOpacity(0.34),
+              _accent.withOpacity(0.10),
+            ],
+          )
+              : null,
+          color: isSelected ? null : const Color(0xFF0F131D),
           border: Border.all(
-            color: isSelected ? _selectedThemeColor : BubbleTheme.cardBorder,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? _accent : BubbleTheme.cardBorder,
+            width: isSelected ? 1.8 : 1.2,
           ),
           boxShadow: isSelected
               ? [
             BoxShadow(
-              color: _selectedThemeColor.withOpacity(0.25),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
+              color: _accent.withOpacity(0.3),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
             ),
           ]
               : [],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 18,
-              color: isSelected ? Colors.white : BubbleTheme.textMuted,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: isSelected
+                    ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [_accent, BubbleTheme.primaryGradientEnd],
+                )
+                    : null,
+                color: isSelected ? null : Colors.white.withOpacity(0.05),
+                boxShadow: isSelected
+                    ? [BoxShadow(color: _accent.withOpacity(0.5), blurRadius: 14)]
+                    : [],
+              ),
+              child: Icon(
+                icon,
+                size: 24,
+                color: isSelected ? Colors.white : BubbleTheme.textMuted,
+              ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 10),
             Text(
               label,
               style: TextStyle(
                 color: isSelected ? Colors.white : BubbleTheme.textMuted,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 fontSize: 14,
               ),
             ),
@@ -1458,38 +1767,313 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildLangButton(String code, String label) {
-    final isSelected = _currentLang == code;
+  // ---------------------------------------------------------------------
+  //  COULEUR DU THÈME
+  // ---------------------------------------------------------------------
+  Widget _buildColorDot(Color color) {
+    final bool isSelected = _selectedThemeColor == color;
     return GestureDetector(
       onTap: () {
+        HapticFeedback.selectionClick();
         setState(() {
-          _currentLang = code;
+          _selectedThemeColor = color;
         });
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? _selectedThemeColor.withOpacity(0.18) : BubbleTheme.cardDark,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? _selectedThemeColor : BubbleTheme.cardBorder,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : BubbleTheme.textMuted,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              fontSize: 13,
+      child: AnimatedScale(
+        scale: isSelected ? 1.1 : 1.0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutBack,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 42,
+          height: 42,
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isSelected ? Colors.white : Colors.transparent,
+              width: 2,
             ),
+            boxShadow: isSelected
+                ? [
+              BoxShadow(
+                color: color.withOpacity(0.65),
+                blurRadius: 16,
+                spreadRadius: 1,
+              ),
+            ]
+                : [],
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [color, Color.lerp(color, Colors.black, 0.25)!],
+              ),
+            ),
+            child: isSelected
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                : null,
           ),
         ),
       ),
     );
   }
+
+  // ---------------------------------------------------------------------
+  //  LANGUE
+  // ---------------------------------------------------------------------
+  Widget _buildLangButton(String code, String flag, String label) {
+    final isSelected = _currentLang == code;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _currentLang = code;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          gradient: isSelected
+              ? LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              _accent.withOpacity(0.34),
+              _accent.withOpacity(0.10),
+            ],
+          )
+              : null,
+          color: isSelected ? null : const Color(0xFF0F131D),
+          border: Border.all(
+            color: isSelected ? _accent : BubbleTheme.cardBorder,
+            width: isSelected ? 1.8 : 1.2,
+          ),
+          boxShadow: isSelected
+              ? [
+            BoxShadow(
+              color: _accent.withOpacity(0.28),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ]
+              : [],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedScale(
+              scale: isSelected ? 1.15 : 1.0,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutBack,
+              child: Text(flag, style: const TextStyle(fontSize: 24)),
+            ),
+            const SizedBox(height: 6),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : BubbleTheme.textMuted,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  fontSize: 12.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  //  BOUTON FINAL
+  // ---------------------------------------------------------------------
+  Widget _buildCta(Map<String, String> t, bool isRtl) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_pulseController, _orbitController]),
+      builder: (context, _) {
+        final double pulse = Curves.easeInOut.transform(_pulseController.value);
+        final double shimmer = (_orbitController.value * 5) % 1.0;
+
+        return Container(
+          height: 64,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: _accent.withOpacity(0.30 + 0.25 * pulse),
+                blurRadius: 24 + 12 * pulse,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(32),
+            child: Material(
+              color: Colors.transparent,
+              child: Ink(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      _accent,
+                      Color.lerp(_accent, BubbleTheme.primaryGradientEnd, 0.7)!,
+                    ],
+                  ),
+                ),
+                child: InkWell(
+                  onTap: _validateAndSave,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment(-2.0 + 4.0 * shimmer, -0.5),
+                                end: Alignment(-1.0 + 4.0 * shimmer, 0.5),
+                                colors: [
+                                  Colors.white.withOpacity(0.0),
+                                  Colors.white.withOpacity(0.32),
+                                  Colors.white.withOpacity(0.0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.18),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.4),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 250),
+                                  transitionBuilder: (child, anim) =>
+                                      ScaleTransition(scale: anim, child: child),
+                                  child: Text(
+                                    _selectedAvatar,
+                                    key: ValueKey<String>('cta$_selectedAvatar'),
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  t['button']!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.5,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: isRtl ? 0 : 0.3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.18),
+                              ),
+                              child: Transform.translate(
+                                offset: Offset((isRtl ? -1 : 1) * 3 * pulse, 0),
+                                child: Icon(
+                                  isRtl
+                                      ? Icons.arrow_back_rounded
+                                      : Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Anneau orbital de l'en-tête du profil
+class _ProfileBadgePainter extends CustomPainter {
+  final double angle;
+  final Color color;
+
+  _ProfileBadgePainter({required this.angle, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Offset c = size.center(Offset.zero);
+    final double r = size.width / 2 - 4;
+    final Rect rect = Rect.fromCircle(center: c, radius: r);
+
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..color = Colors.white.withOpacity(0.08),
+    );
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.6
+        ..strokeCap = StrokeCap.round
+        ..shader = SweepGradient(
+          colors: [
+            color.withOpacity(0.0),
+            color,
+            color.withOpacity(0.0),
+          ],
+          transform: GradientRotation(angle * 4),
+        ).createShader(rect),
+    );
+
+    for (int k = 0; k < 3; k++) {
+      final double ang = angle * 4 + k * 2 * math.pi / 3;
+      final Offset pos = c + Offset(math.cos(ang), math.sin(ang)) * r;
+      final Color dot = k == 0 ? BubbleTheme.accentGold : color;
+      canvas.drawCircle(pos, 6, Paint()..color = dot.withOpacity(0.25));
+      canvas.drawCircle(pos, 2.8, Paint()..color = dot);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ProfileBadgePainter old) =>
+      old.angle != angle || old.color != color;
 }
 
 // ==========================================

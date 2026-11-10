@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'accueil.dart' show ModernTheme, LuxBackdrop, LuxGlass, LuxPress, LuxCategory, luxClean, luxDisplay, luxGradient, luxPlaces;
 
 import 'chateaux/chateau_de_verseilles.dart';
 import 'chateaux/chateau_de_chambord.dart';
@@ -415,36 +418,449 @@ class _FavorisPageState extends State<FavorisPage> {
     await _loadFavorites();
   }
 
+  // ==========================================================================
+  //  TEXTES
+  // ==========================================================================
+  String _tr(String fr, String en, String ar) {
+    if (widget.languageCode == 'ar') return ar;
+    if (widget.languageCode == 'en') return en;
+    return fr;
+  }
+
+  // ==========================================================================
+  //  ACTIONS (avec possibilité d'annuler)
+  // ==========================================================================
+  void _showUndoBar(String message, VoidCallback onUndo) {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: ModernTheme.surfaceCard,
+        elevation: 0,
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 22),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.white.withOpacity(0.12)),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: ModernTheme.textLight,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        action: SnackBarAction(
+          label: _tr('Annuler', 'Undo', 'تراجع'),
+          textColor: widget.themeColor,
+          onPressed: onUndo,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _removeFavorite(String key) async {
+    HapticFeedback.selectionClick();
+    await _toggleFavorite(key);
+    if (!mounted) return;
+    _showUndoBar(
+      _tr('Retiré des favoris', 'Removed from favorites', 'تمت الإزالة من المفضلة'),
+          () => _toggleFavorite(key),
+    );
+  }
+
+  Future<void> _clearWithUndo() async {
+    HapticFeedback.mediumImpact();
+    final List<String> previous = List<String>.from(_favoriteKeys);
+    await _clearAllFavorites();
+    if (!mounted) return;
+    _showUndoBar(
+      _tr('Tous les favoris retirés', 'All favorites removed', 'تمت إزالة كل المفضلة'),
+          () async {
+        final prefs = await SharedPreferences.getInstance();
+        if (!mounted) return;
+        setState(() => _favoriteKeys = previous);
+        await prefs.setStringList('user_favorites', _favoriteKeys);
+      },
+    );
+  }
+
+  // ==========================================================================
+  //  PETITS COMPOSANTS
+  // ==========================================================================
+  Widget _image(String path, double size) {
+    final Widget fallback = Container(
+      width: size,
+      height: size,
+      color: ModernTheme.surfaceCard,
+      child: const Icon(
+        Icons.image_not_supported_rounded,
+        color: ModernTheme.textMuted,
+        size: 22,
+      ),
+    );
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        cacheWidth: (size * 3).round(),
+        errorBuilder: (context, error, stackTrace) => fallback,
+      );
+    }
+    return Image.network(
+      path,
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => fallback,
+    );
+  }
+
+  Widget _roundButton({required IconData icon, required VoidCallback? onTap}) {
+    final bool enabled = onTap != null;
+    return LuxPress(
+      onTap: onTap,
+      child: LuxGlass(
+        radius: 22,
+        width: 44,
+        height: 44,
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          size: 20,
+          textDirection: TextDirection.ltr,
+          color: enabled ? ModernTheme.textLight : Colors.white.withOpacity(0.25),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummary(List<Map<String, dynamic>> all, int total, bool isRtl) {
+    final List<Map<String, dynamic>> shown = all.take(4).toList();
+    const double d = 54;
+    const double step = 32;
+
+    return LuxGlass(
+      radius: 30,
+      padding: const EdgeInsets.all(16),
+      borderOpacity: 0.16,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          widget.themeColor.withOpacity(0.28),
+          widget.themeColor.withOpacity(0.07),
+        ],
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: d + (shown.length - 1) * step,
+            height: d,
+            child: Stack(
+              children: [
+                for (int i = 0; i < shown.length; i++)
+                  PositionedDirectional(
+                    start: i * step,
+                    child: Container(
+                      width: d,
+                      height: d,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: ModernTheme.background, width: 3),
+                      ),
+                      child: ClipOval(child: _image(shown[i]['image'].toString(), d - 6)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  luxPlaces(total, widget.languageCode),
+                  style: luxDisplay(24, rtl: isRtl, letterSpacing: -0.4),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _tr(
+                    'enregistrés dans vos favoris',
+                    'saved to your favorites',
+                    'محفوظة في مفضلتك',
+                  ),
+                  style: const TextStyle(
+                    color: ModernTheme.textMuted,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String catKey, int count) {
+    final Color c = LuxCategory.color(catKey);
+    final Map<String, String> names = _categoryNames[catKey] ?? {};
+    final String label = luxClean(names[widget.languageCode] ?? names['fr'] ?? catKey);
+
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: c.withOpacity(0.15),
+            border: Border.all(color: c.withOpacity(0.4), width: 1),
+          ),
+          child: Icon(LuxCategory.icon(catKey), color: c, size: 21),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: ModernTheme.textLight,
+              fontSize: 16.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          luxPlaces(count, widget.languageCode),
+          style: const TextStyle(
+            color: ModernTheme.textMuted,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFavCard(Map<String, dynamic> item, String catKey, bool isRtl) {
+    final Map<String, String> titleMap = item['title'] as Map<String, String>;
+    final Map<String, String> subtitleMap = item['subtitle'] as Map<String, String>;
+    final String title = luxClean(titleMap[widget.languageCode] ?? titleMap['fr']!);
+    final String subtitle = subtitleMap[widget.languageCode] ?? subtitleMap['fr']!;
+    final String key = item['key'] as String;
+    final Color catColor = LuxCategory.color(catKey);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: LuxPress(
+        onTap: () => _navigateToPage(key),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.09),
+                Colors.white.withOpacity(0.03),
+              ],
+            ),
+            border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+          ),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: _image(item['image'].toString(), 92),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: luxDisplay(
+                        18,
+                        rtl: isRtl,
+                        height: 1.15,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.place_rounded, size: 15, color: catColor),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            subtitle,
+                            style: const TextStyle(
+                              color: ModernTheme.textMuted,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _removeFavorite(key),
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: ModernTheme.secondaryAccent,
+                    boxShadow: [
+                      BoxShadow(
+                        color: ModernTheme.secondaryAccent.withOpacity(0.45),
+                        blurRadius: 14,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 22),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmpty(bool isRtl, String emptyText) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 56),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    widget.themeColor.withOpacity(0.30),
+                    widget.themeColor.withOpacity(0.0),
+                  ],
+                ),
+              ),
+              child: const Center(
+                child: LuxGlass(
+                  radius: 40,
+                  width: 82,
+                  height: 82,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.favorite_border_rounded,
+                    size: 38,
+                    color: ModernTheme.secondaryAccent,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              emptyText,
+              textAlign: TextAlign.center,
+              style: luxDisplay(24, rtl: isRtl, height: 1.15, letterSpacing: -0.4),
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                _tr(
+                  'Touchez le cœur d’un lieu pour le retrouver ici.',
+                  'Tap the heart on a place to find it here.',
+                  'اضغط على القلب في أي مكان لتجده هنا.',
+                ),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: ModernTheme.textMuted,
+                  fontSize: 14,
+                  height: 1.55,
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            LuxPress(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 15),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: luxGradient(widget.themeColor),
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.themeColor.withOpacity(0.45),
+                      blurRadius: 22,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.explore_rounded, color: Colors.white, size: 20),
+                    const SizedBox(width: 9),
+                    Text(
+                      _tr('Explorer les lieux', 'Explore places', 'استكشف الأماكن'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ==========================================================================
+  //  BUILD
+  // ==========================================================================
   @override
   Widget build(BuildContext context) {
     final bool isRtl = widget.languageCode == 'ar';
+    final MediaQueryData mq = MediaQuery.of(context);
 
-    final String titleText = widget.languageCode == 'ar'
-        ? 'المفضلة'
-        : widget.languageCode == 'en'
-        ? 'Favorites'
-        : 'Mes Favoris';
-
-    final String subtitleText = widget.languageCode == 'ar'
-        ? 'أماكنك المحفوظة حسب الفئات'
-        : widget.languageCode == 'en'
-        ? 'Your saved places by category'
-        : 'Vos lieux enregistrés par catégorie';
-
-    final String emptyText = widget.languageCode == 'ar'
-        ? 'لا توجد أماكن مفضلة حالياً'
-        : widget.languageCode == 'en'
-        ? 'No favorites added yet'
-        : 'Aucun favori ajouté pour le moment';
-
-    final String clearText = widget.languageCode == 'ar'
-        ? 'إزالة الكل'
-        : widget.languageCode == 'en'
-        ? 'Clear all'
-        : 'Retirer tout';
+    final String titleText = _tr('Mes Favoris', 'Favorites', 'المفضلة');
+    final String subtitleText = _tr(
+      'Vos lieux enregistrés par catégorie',
+      'Your saved places by category',
+      'أماكنك المحفوظة حسب الفئات',
+    );
+    final String emptyText = _tr(
+      'Aucun favori ajouté pour le moment',
+      'No favorites added yet',
+      'لا توجد أماكن مفضلة حالياً',
+    );
+    final String clearText = _tr('Retirer tout', 'Clear all', 'إزالة الكل');
 
     final Map<String, List<Map<String, dynamic>>> groupedFavorites = {};
-
     for (var item in _masterCatalog) {
       if (_favoriteKeys.contains(item['key'])) {
         final catKey = item['categoryKey'] as String;
@@ -453,189 +869,95 @@ class _FavorisPageState extends State<FavorisPage> {
       }
     }
 
+    int total = 0;
+    final List<Map<String, dynamic>> flat = [];
+    groupedFavorites.forEach((k, v) {
+      total += v.length;
+      flat.addAll(v);
+    });
+
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0B0C10),
-        body: _isLoading
-            ? Center(child: CircularProgressIndicator(color: widget.themeColor))
-            : SafeArea(
-          child: SingleChildScrollView(
+        backgroundColor: ModernTheme.background,
+        body: LuxBackdrop(
+          color: widget.themeColor,
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator(color: widget.themeColor))
+              : SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            padding: EdgeInsets.fromLTRB(20, mq.padding.top + 12, 20, mq.padding.bottom + 36),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        isRtl ? Icons.arrow_forward_ios : Icons.arrow_back_ios_new,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: () => Navigator.pop(context),
+                    _roundButton(
+                      icon: isRtl
+                          ? Icons.arrow_forward_ios_rounded
+                          : Icons.arrow_back_ios_new_rounded,
+                      onTap: () => Navigator.pop(context),
                     ),
-                    Expanded(
-                      child: Text(
-                        titleText,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
+                    const Spacer(),
+                    Tooltip(
+                      message: clearText,
+                      child: _roundButton(
+                        icon: Icons.delete_sweep_rounded,
+                        onTap: total == 0 ? null : _clearWithUndo,
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete_sweep_rounded,
-                        color: Colors.white54,
-                        size: 22,
-                      ),
-                      onPressed: _favoriteKeys.isEmpty ? null : _clearAllFavorites,
-                      tooltip: clearText,
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 26),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        titleText,
+                        style: luxDisplay(50, rtl: isRtl, height: 1.0, letterSpacing: -1.8),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Icon(
+                        Icons.favorite_rounded,
+                        color: ModernTheme.secondaryAccent,
+                        size: 30,
+                        shadows: [
+                          Shadow(
+                            color: ModernTheme.secondaryAccent.withOpacity(0.6),
+                            blurRadius: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 Text(
                   subtitleText,
                   style: const TextStyle(
-                    color: Color(0xFF9CA3AF),
+                    color: ModernTheme.textMuted,
                     fontSize: 14,
+                    height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 20),
-                groupedFavorites.isEmpty
-                    ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 80.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.favorite_border_rounded,
-                          size: 60,
-                          color: widget.themeColor.withOpacity(0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          emptyText,
-                          style: const TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 15,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-                    : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: groupedFavorites.keys.map((categoryKey) {
-                    final itemsInCategory = groupedFavorites[categoryKey]!;
-                    final catNameMap = _categoryNames[categoryKey] ?? {};
-                    final catTitle = catNameMap[widget.languageCode] ?? catNameMap['fr'] ?? categoryKey;
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12.0, bottom: 12.0),
-                          child: Text(
-                            catTitle,
-                            style: TextStyle(
-                              color: widget.themeColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        ...itemsInCategory.map((item) {
-                          final titleMap = item['title'] as Map<String, String>;
-                          final subtitleMap = item['subtitle'] as Map<String, String>;
-                          final title = titleMap[widget.languageCode] ?? titleMap['fr']!;
-                          final subtitle = subtitleMap[widget.languageCode] ?? subtitleMap['fr']!;
-
-                          return GestureDetector(
-                            onTap: () => _navigateToPage(item['key']),
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E2029),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: item['image'].toString().startsWith('assets/')
-                                        ? Image.asset(
-                                      item['image'],
-                                      width: 70,
-                                      height: 70,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Container(
-                                        width: 70,
-                                        height: 70,
-                                        color: const Color(0xFF2A2D3A),
-                                        child: const Icon(Icons.image, color: Colors.white54),
-                                      ),
-                                    )
-                                        : Image.network(
-                                      item['image'],
-                                      width: 70,
-                                      height: 70,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          title,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          subtitle,
-                                          style: const TextStyle(
-                                            color: Color(0xFF9CA3AF),
-                                            fontSize: 14,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.favorite_rounded,
-                                      color: widget.themeColor,
-                                      size: 24,
-                                    ),
-                                    onPressed: () => _toggleFavorite(item['key']),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                        const SizedBox(height: 10),
-                      ],
-                    );
-                  }).toList(),
-                ),
+                const SizedBox(height: 26),
+                if (groupedFavorites.isEmpty)
+                  _buildEmpty(isRtl, emptyText)
+                else ...[
+                  _buildSummary(flat, total, isRtl),
+                  const SizedBox(height: 28),
+                  for (final entry in groupedFavorites.entries) ...[
+                    _buildSectionTitle(entry.key, entry.value.length),
+                    const SizedBox(height: 14),
+                    for (final item in entry.value)
+                      _buildFavCard(item, entry.key, isRtl),
+                    const SizedBox(height: 14),
+                  ],
+                ],
               ],
             ),
           ),
