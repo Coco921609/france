@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -430,11 +432,21 @@ class _FavorisPageState extends State<FavorisPage> {
   // ==========================================================================
   //  ACTIONS (avec possibilité d'annuler)
   // ==========================================================================
+  Timer? _undoTimer;
+
+  @override
+  void dispose() {
+    _undoTimer?.cancel();
+    super.dispose();
+  }
+
   void _showUndoBar(String message, VoidCallback onUndo) {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
+    _undoTimer?.cancel();
     messenger.showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         backgroundColor: ModernTheme.surfaceCard,
         elevation: 0,
@@ -457,6 +469,9 @@ class _FavorisPageState extends State<FavorisPage> {
         ),
       ),
     );
+    _undoTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    });
   }
 
   Future<void> _removeFavorite(String key) async {
@@ -965,4 +980,4 @@ class _FavorisPageState extends State<FavorisPage> {
       ),
     );
   }
-}
+}git
