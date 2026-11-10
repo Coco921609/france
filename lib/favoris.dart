@@ -980,4 +980,4 @@ class _FavorisPageState extends State<FavorisPage> {
       ),
     );
   }
-}git
+}
