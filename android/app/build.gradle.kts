@@ -32,7 +32,7 @@ android {
         applicationId = "com.france_secrete.france_secrete"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 53
+        versionCode = 54
         versionName = "15.0.0"
     }
 
