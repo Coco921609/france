@@ -1,0 +1,117 @@
+name: Capture real app screenshots
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/screenshots/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: france-app-screenshots
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Build screenshot version of the real Flutter screens
+        run: |
+          flutter pub get
+          flutter build web --base-href "/" -t tool/screenshot_harness.dart
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright http-server
+          npx playwright install --with-deps chromium
+      - name: Capture one image per screen
+        run: |
+          mkdir -p docs/screenshots
+          npx http-server build/web -p 4173 -c-1 > /tmp/france-server.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID || true" EXIT
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          const base = 'http://127.0.0.1:4173/?screen=';
+          const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              viewport: { width: 430, height: 932 },
+              deviceScaleFactor: 1, isMobile: true, hasTouch: true
+            });
+            async function capture(screen, name, delay = 3500) {
+              const page = await context.newPage();
+              await page.goto(base + screen, { waitUntil: 'networkidle' });
+              await wait(delay);
+              await page.screenshot({
+                path: `docs/screenshots/${name}.png`,
+                fullPage: true, animations: 'disabled'
+              });
+              console.log('Captured', name);
+              await page.close();
+            }
+            await capture('language', '01-choix-langue', 12500);
+            const intro = await context.newPage();
+            await intro.goto(base + 'presentation', { waitUntil: 'networkidle' });
+            await wait(4000);
+            for (let i = 0; i < 4; i++) {
+              await intro.screenshot({
+                path: `docs/screenshots/0${i + 2}-presentation-${['decouverte','evasion','insolite','exploration'][i]}.png`,
+                fullPage: true, animations: 'disabled'
+              });
+              if (i < 3) {
+                await intro.mouse.click(350, 875);
+                await wait(1200);
+              }
+            }
+            await intro.close();
+            await capture('profile', '06-profil');
+            await capture('home', '07-accueil', 5500);
+            await capture('settings', '08-parametres');
+            await capture('favorites', '09-favoris');
+            await capture('versailles', '10-versailles');
+            await capture('chambord', '11-chambord');
+            await capture('sugiton', '12-calanque-de-sugiton');
+            await capture('pilat', '13-dune-du-pilat');
+            await capture('verdon', '14-gorges-du-verdon');
+            await capture('etretat', '15-etretat');
+            await capture('mont-saint-michel', '16-mont-saint-michel');
+            await browser.close();
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
+      - name: Verify all screenshots are present and distinct
+        run: |
+          expected=(
+            01-choix-langue 02-presentation-decouverte 03-presentation-evasion
+            04-presentation-insolite 05-presentation-exploration 06-profil
+            07-accueil 08-parametres 09-favoris 10-versailles 11-chambord
+            12-calanque-de-sugiton 13-dune-du-pilat 14-gorges-du-verdon
+            15-etretat 16-mont-saint-michel
+          )
+          declare -A hashes
+          for name in "${expected[@]}"; do
+            file="docs/screenshots/$name.png"
+            test -s "$file" || { echo "Missing screenshot: $file"; exit 1; }
+            hash=$(sha256sum "$file" | cut -d ' ' -f 1)
+            if [[ -n "${hashes[$hash]:-}" ]]; then
+              echo "Duplicate screenshot: $name matches ${hashes[$hash]}"
+              exit 1
+            fi
+            hashes[$hash]="$name"
+          done
+          echo "Verified ${#expected[@]} unique app screenshots."
+      - name: Commit screenshots
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: refresh genuine France Secrète screenshots"
+          file_pattern: "docs/screenshots/*.png"
