@@ -1,15 +1,22 @@
 # 🇫🇷 France Secrète
 
 <p align="center">
+  <strong>REDÉCOUVREZ LA FRANCE, UN SECRET À LA FOIS.</strong><br>
+  Des châteaux majestueux aux paysages confidentiels, partez à la rencontre d’une France inattendue.
+</p>
+
+<p align="center">
   <strong>LE GUIDE DES BEAUTÉS CACHÉES DE FRANCE</strong><br>
   <em>Des lieux d’exception, des paysages inattendus et un patrimoine à redécouvrir.</em>
 </p>
 
 <p align="center">
+  <a href="https://coco921609.github.io/france/"><strong>Découvrir l’application</strong></a>
+  &nbsp;·&nbsp;
   <a href="https://play.google.com/store/apps/details?id=com.france_secrete.france_secrete"><strong>▶ Télécharger sur Android</strong></a>
-  &nbsp; · &nbsp;
+  &nbsp;·&nbsp;
   <a href="https://coco921609.github.io/france/"><strong> Découvrir sur iOS / Web</strong></a>
-  &nbsp; · &nbsp;
+  &nbsp;·&nbsp;
   <a href="https://github.com/Coco921609/france"><strong>Code source</strong></a>
 </p>
 
@@ -25,7 +32,7 @@
 
 **France Secrète** est une application Flutter dédiée à celles et ceux qui souhaitent découvrir une autre facette de la France. Des châteaux majestueux aux calanques confidentielles, des gorges spectaculaires aux panoramas grandioses, elle rassemble des lieux qui méritent le détour.
 
-Son interface immersive, son univers sombre et ses accents lumineux accompagnent une exploration pensée comme un beau carnet de voyage numérique.
+Son interface immersive, son univers sombre et ses accents lumineux accompagnent une exploration pensée comme un beau carnet de voyage numérique. L’application invite à découvrir des lieux emblématiques et des sites naturels moins connus, à son propre rythme.
 
 ## ✦ Trois univers à explorer
 
@@ -34,6 +41,17 @@ Son interface immersive, son univers sombre et ses accents lumineux accompagnent
 | 🏰 **Châteaux & patrimoine** | Domaines historiques, architectures remarquables et lieux chargés d’histoire |
 | 🌊 **Calanques & littoral** | Criques, falaises, eaux turquoise et paysages côtiers |
 | 🏞️ **Nature & grands paysages** | Canyons, gorges, cascades, lacs, forêts et panoramas |
+
+## ✦ Un parcours pensé pour la découverte
+
+| ÉTAPE | EXPÉRIENCE |
+|:---:|:--|
+| **01** | **Bienvenue** — découvrez l’univers de France Secrète |
+| **02** | **Personnalisation** — choisissez vos préférences et créez votre profil |
+| **03** | **Exploration** — parcourez les châteaux et les paysages |
+| **04** | **Fiches de lieux** — approfondissez chaque découverte |
+| **05** | **Favoris** — retrouvez les lieux que vous souhaitez garder |
+| **06** | **Paramètres** — adaptez l’application et ses préférences |
 
 ## ✦ Le parcours de l’application
 
@@ -81,7 +99,7 @@ Son interface immersive, son univers sombre et ses accents lumineux accompagnent
 ## ✦ Fonctionnalités
 
 - Découverte de lieux classés par grandes catégories.
-- Sections dédiées aux châteaux et aux paysages.
+- Sections dédiées aux châteaux, au patrimoine et aux paysages.
 - Fiches détaillées pour les lieux présentés.
 - Recherche et navigation dans les contenus.
 - Gestion des favoris.
@@ -125,6 +143,7 @@ flutter build web --base-href "/france/"
 - **Android — Google Play :** https://play.google.com/store/apps/details?id=com.france_secrete.france_secrete
 - **iOS / Web :** https://coco921609.github.io/france/
 - **Dépôt GitHub :** https://github.com/Coco921609/france
+- **Documentation Flutter :** https://docs.flutter.dev/
 
 ---
 
