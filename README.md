@@ -155,43 +155,122 @@ flutter build web --base-href "/france/"
 
 ## ✦ Ouvrir ce projet Flutter dans Android Studio
 
-### 1. Cloner le dépôt et entrer dans le dossier
+Ce guide explique comment récupérer **France Secrète**, installer les outils nécessaires et lancer le projet sur Windows, macOS (pour iOS) et Linux.
+
+### 1. Télécharger le projet
+
+Installez **Git**, **Flutter SDK** et **Android Studio** sur votre ordinateur. Ouvrez PowerShell, le Terminal macOS ou celui de Linux, puis exécutez :
 
 ```bash
 git clone https://github.com/Coco921609/france.git
 cd france
 ```
 
-### 2. Vérifier Flutter et installer les dépendances
+Le dossier `france` contient le fichier `pubspec.yaml` : c’est ce dossier qu’il faudra ouvrir dans Android Studio.
 
-Exécutez ces commandes à la racine du projet, dans le dossier qui contient `pubspec.yaml` :
+### 2. Installer et configurer Android Studio
+
+1. Téléchargez Android Studio : https://developer.android.com/studio
+2. Lancez l’installation et ouvrez Android Studio.
+3. Dans **Settings / Preferences → Plugins → Marketplace**, recherchez et installez les plugins **Flutter** et **Dart** (l’installation de Flutter propose aussi Dart).
+4. Redémarrez Android Studio.
+5. Dans **SDK Manager**, installez un Android SDK récent ainsi que les outils de plateforme et de compilation Android.
+6. Dans **Device Manager**, créez un émulateur Android ou connectez un téléphone avec le débogage USB activé.
+
+Installez également le Flutter SDK depuis https://docs.flutter.dev/get-started/install et ajoutez son dossier `bin` à la variable PATH de votre système.
+
+### 3. Configuration selon votre système
+
+#### Windows
+
+1. Installez Git : https://git-scm.com/download/win
+2. Téléchargez et décompressez le Flutter SDK, par exemple dans `C:\\src\\flutter` (évitez les dossiers protégés).
+3. Ajoutez `C:\\src\\flutter\\bin` au **PATH** de Windows : recherchez « Modifier les variables d’environnement système », ouvrez **Variables d’environnement**, sélectionnez **Path**, puis **Nouveau**.
+4. Fermez et rouvrez PowerShell ou le terminal d’Android Studio.
+5. Vérifiez l’installation :
+
+```powershell
+flutter --version
+flutter doctor
+```
+
+6. Suivez les indications de `flutter doctor` pour terminer la configuration Android et accepter les licences :
+
+```powershell
+flutter doctor --android-licenses
+```
+
+#### macOS (Android et iOS)
+
+1. Installez Git et Flutter en suivant https://docs.flutter.dev/get-started/install/macos
+2. Installez Android Studio et les composants Android SDK décrits plus haut.
+3. Pour compiler ou lancer l’application sur iPhone/iPad, installez **Xcode** depuis le Mac App Store.
+4. Ouvrez Xcode une première fois, puis exécutez dans le Terminal :
 
 ```bash
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+sudo xcodebuild -runFirstLaunch
 flutter doctor
+```
+
+5. Pour tester sur un iPhone, connectez-le au Mac, faites confiance à l’ordinateur et activez le mode développeur si iOS le demande. Vous pouvez aussi créer un simulateur depuis Xcode.
+
+#### Linux
+
+1. Installez Git et les dépendances système requises par Flutter pour votre distribution. Consultez https://docs.flutter.dev/get-started/install/linux
+2. Téléchargez et installez le Flutter SDK, puis ajoutez le dossier `flutter/bin` à votre PATH.
+3. Installez Android Studio : https://developer.android.com/studio
+4. Dans Android Studio, installez le SDK Android, les outils de compilation et les plugins Flutter et Dart.
+5. Vérifiez la configuration et les licences :
+
+```bash
+flutter --version
+flutter doctor
+flutter doctor --android-licenses
+```
+
+**Important :** le développement et les tests Android/Web sont possibles sous Windows, macOS et Linux. La compilation et la signature d’une application iOS nécessitent un Mac avec Xcode ; Android Studio seul sur Windows ou Linux ne peut pas produire une version iOS.
+
+### 4. Ouvrir France Secrète dans Android Studio
+
+1. Démarrez Android Studio.
+2. Cliquez sur **Open** (ou **Open an Existing Project**).
+3. Sélectionnez le dossier cloné `france` — celui qui contient `pubspec.yaml`.
+4. Attendez que le projet soit chargé.
+5. Ouvrez le terminal intégré d’Android Studio et exécutez :
+
+```bash
 flutter pub get
 ```
 
-### 3. Ouvrir le projet dans Android Studio
+### 5. Lancer l’application
 
-**Windows (PowerShell), macOS ou Linux** — si la commande `studio` est disponible dans le PATH :
-
-```bash
-studio .
-```
-
-Sur macOS, vous pouvez aussi utiliser :
-
-```bash
-open -a "Android Studio" .
-```
-
-Si `studio` n’est pas reconnu, ouvrez Android Studio manuellement, cliquez sur **Open**, puis sélectionnez le dossier `france`.
-
-### 4. Démarrer l’application
-
-Démarrez un émulateur Android ou connectez un téléphone avec le débogage USB activé, puis lancez :
+Démarrez un émulateur dans **Device Manager** ou branchez un appareil compatible. Dans le terminal, vérifiez les appareils puis lancez l’application :
 
 ```bash
 flutter devices
 flutter run
 ```
+
+Vous pouvez aussi sélectionner l’appareil dans la barre d’outils d’Android Studio et cliquer sur **Run ▶**.
+
+Pour lancer la version Web dans un navigateur :
+
+```bash
+flutter run -d chrome
+```
+
+Pour générer le site Web de ce dépôt :
+
+```bash
+flutter build web --base-href "/france/"
+```
+
+### 6. En cas de problème
+
+- Lancez `flutter doctor` et corrigez les éléments signalés.
+- Vérifiez que le dossier `flutter/bin` est bien dans le PATH, puis redémarrez le terminal.
+- Dans le dossier du projet, relancez `flutter pub get`.
+- Si aucun appareil n’apparaît, vérifiez l’émulateur, le câble USB et le débogage USB avec `flutter devices`.
+- Consultez la documentation officielle : https://docs.flutter.dev/
+
